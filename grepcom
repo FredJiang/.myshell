@@ -1,0 +1,10 @@
+#! /bin/bash
+
+grep -P '^\s*[^# \t].*$' $1
+
+# not work for tab
+# grep '\t'
+
+# work for tab
+# grep -P '\t'
+# grep $'\t'

@@ -1,0 +1,3 @@
+[submodule "mypackages/showlinenum"]
+	path = mypackages/showlinenum
+	url = https://github.com/jay/showlinenum.git
