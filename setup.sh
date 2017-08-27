@@ -40,7 +40,7 @@ function install_gawk {
     fi
 }
 
-
+install_gawk
 
 case "$OSTYPE" in
   solaris*)
