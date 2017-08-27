@@ -97,12 +97,12 @@ fi
 
 
 
-if [ -e $HOME/.gawkrc ]
+if [ -e $HOME/.zshrc ]
 then
-    grepResult=$(cat $HOME/.gawkrc | grep PATH | grep myshell)
-    echo $HOME/.gawkrc $grepResult
+    grepResult=$(cat $HOME/.zshrc | grep PATH | grep myshell)
+    echo $HOME/.zshrc $grepResult
     if [ ${#grepResult} == 0 ]
     then
-        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.gawkrc
+        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.zshrc
     fi
 fi
