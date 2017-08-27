@@ -6,4 +6,4 @@ git status
 
 echo ""
 
-git diff --color=always $1 | ~/myshell/mypackages/showlinenum/showlinenum.awk
+git diff --color=always $1 | ~/.myshell/mypackages/showlinenum/showlinenum.awk
