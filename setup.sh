@@ -15,13 +15,38 @@ git submodule update
 
 
 
+function install_gawk {
+    if which gawk > /dev/null
+    then
+        echo 'gawk has installed'
+    else
+        if which apt-get > /dev/null
+        then
+            echo 'sudo apt-get install -y gawk'
+            sudo apt-get install -y gawk
+        fi
+
+        if which yum > /dev/null
+        then
+            echo 'sudo yum install -y gawk'
+            sudo yum install -y gawk
+        fi
+
+        if which brew >/dev/null
+        then
+            echo 'brew install gawk'
+            brew install gawk
+        fi
+    fi
+}
+
+
+
 case "$OSTYPE" in
   solaris*)
     echo "SOLARIS" ;;
   darwin*)
     echo "OSX"
-    echo 'brew install gawk'
-    brew install gawk
     ;; 
   linux*)
     echo "LINUX"
@@ -72,12 +97,12 @@ fi
 
 
 
-if [ -e $HOME/.zshrc ]
+if [ -e $HOME/.gawkrc ]
 then
-    grepResult=$(cat $HOME/.zshrc | grep PATH | grep myshell)
-    echo $HOME/.zshrc $grepResult
+    grepResult=$(cat $HOME/.gawkrc | grep PATH | grep myshell)
+    echo $HOME/.gawkrc $grepResult
     if [ ${#grepResult} == 0 ]
     then
-        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.zshrc
+        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.gawkrc
     fi
 fi
