@@ -61,39 +61,39 @@ esac
 
 
 
-if [ -e $HOME/.bash_profile ]
-then
-    grepResult=$(cat $HOME/.bash_profile | grep PATH | grep myshell)
-    echo $HOME/.bash_profile $grepResult
-    if [ ${#grepResult} == 0 ]
-    then
-        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.bash_profile
-    fi
-fi
+# if [ -e $HOME/.bash_profile ]
+# then
+#     grepResult=$(cat $HOME/.bash_profile | grep PATH | grep myshell)
+#     echo $HOME/.bash_profile $grepResult
+#     if [ ${#grepResult} == 0 ]
+#     then
+#         echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.bash_profile
+#     fi
+# fi
 
 
 
-if [ -e $HOME/.bashrc ]
-then
-    grepResult=$(cat $HOME/.bashrc | grep PATH | grep myshell)
-    echo $HOME/.bashrc $grepResult
-    if [ ${#grepResult} == 0 ]
-    then
-        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.bashrc
-    fi
-fi
+# if [ -e $HOME/.bashrc ]
+# then
+#     grepResult=$(cat $HOME/.bashrc | grep PATH | grep myshell)
+#     echo $HOME/.bashrc $grepResult
+#     if [ ${#grepResult} == 0 ]
+#     then
+#         echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.bashrc
+#     fi
+# fi
 
 
 
-if [ -e $HOME/.profile ]
-then
-    grepResult=$(cat $HOME/.profile | grep PATH | grep myshell)
-    echo $HOME/.profile $grepResult
-    if [ ${#grepResult} == 0 ]
-    then
-        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.profile
-    fi
-fi
+# if [ -e $HOME/.profile ]
+# then
+#     grepResult=$(cat $HOME/.profile | grep PATH | grep myshell)
+#     echo $HOME/.profile $grepResult
+#     if [ ${#grepResult} == 0 ]
+#     then
+#         echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.profile
+#     fi
+# fi
 
 
 
@@ -103,6 +103,6 @@ then
     echo $HOME/.zshrc $grepResult
     if [ ${#grepResult} == 0 ]
     then
-        echo 'export PATH=$PATH:$HOME/.myshell:' >> $HOME/.zshrc
+        echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.zshrc
     fi
 fi
