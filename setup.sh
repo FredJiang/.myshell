@@ -1,7 +1,7 @@
 #! /bin/bash
 
-echo 'cd ~/.myshell'
-cd ~/.myshell
+echo 'git pull'
+git pull
 
 
 
@@ -12,6 +12,16 @@ git submodule init
 
 echo 'git submodule update'
 git submodule update
+
+
+
+
+
+echo 'cd ~/.myshell'
+cd ~/.myshell
+
+
+
 
 
 
