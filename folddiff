@@ -1,0 +1,3 @@
+#!/bin/sh
+
+diff --exclude=.DS_Store --exclude=.git -r $1 $2
