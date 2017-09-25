@@ -1,0 +1,9 @@
+#!/bin/sh
+
+nohup tmuxinator start $1 >/dev/null 2>&1 &
+
+sleep 6
+
+tmux ls
+
+tmux -CC attach -t $1
