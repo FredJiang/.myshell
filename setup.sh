@@ -1,72 +1,80 @@
 #! /bin/bash
 
-echo 'git pull'
-git pull
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
 
 
-
-echo 'git submodule init'
-git submodule init
-
-
-
-echo 'git submodule update'
-git submodule update
+function echoMe {
+    echo -e "\033[35m$@\033[0m"
+}
 
 
+echoCo 'git pull'
+        git pull
 
 
-
-echo 'cd ~/.myshell'
-cd ~/.myshell
-
+echoCo 'git submodule init'
+        git submodule init
 
 
+echoCo 'git submodule update'
+        git submodule update
 
+
+echoCo 'cd ~/.myshell'
+        cd ~/.myshell
 
 
 function install_gawk {
     if which gawk > /dev/null
     then
-        echo 'gawk has installed'
+        echoMe 'gawk has installed'
     else
         if which apt-get > /dev/null
         then
-            echo 'sudo apt-get install -y gawk'
-            sudo apt-get install -y gawk
+            echoCo 'sudo apt-get install -y gawk'
+                    sudo apt-get install -y gawk
         fi
 
         if which yum > /dev/null
         then
-            echo 'sudo yum install -y gawk'
-            sudo yum install -y gawk
+            echoCo 'sudo yum install -y gawk'
+                    sudo yum install -y gawk
         fi
 
         if which brew >/dev/null
         then
-            echo 'brew install gawk'
-            brew install gawk
+            echoCo 'brew install gawk'
+                    brew install gawk
         fi
     fi
 }
 
+
 install_gawk
+
 
 case "$OSTYPE" in
   solaris*)
-    echo "SOLARIS" ;;
+    echoMe "SOLARIS"
+    ;;
   darwin*)
-    echo "OSX"
+    echoMe "OSX"
     ;; 
   linux*)
-    echo "LINUX"
+    echoMe "LINUX"
     ;;
   bsd*) 
-    echo "BSD" ;;
+    echoMe "BSD"
+    ;;
   msys*) 
-    echo "WINDOWS" ;;
+    echoMe "WINDOWS"
+    ;;
   *)
-    echo "unknown: $OSTYPE" ;;
+    echoMe "unknown: $OSTYPE"
+    ;;
 esac
 
 
@@ -110,9 +118,11 @@ esac
 if [ -e $HOME/.zshrc ]
 then
     grepResult=$(cat $HOME/.zshrc | grep PATH | grep myshell)
-    echo $HOME/.zshrc $grepResult
+    echoMe $HOME/.zshrc $grepResult
+
     if [ ${#grepResult} == 0 ]
     then
-        echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.zshrc
+        echoCo "echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.zshrc"
+                echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.zshrc
     fi
 fi
