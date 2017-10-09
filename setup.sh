@@ -23,10 +23,6 @@ echoCo 'git submodule update'
         git submodule update
 
 
-echoCo 'cd ~/.myshell'
-        cd ~/.myshell
-
-
 function install_gawk {
     if which gawk > /dev/null
     then
@@ -78,51 +74,54 @@ case "$OSTYPE" in
 esac
 
 
-
-# if [ -e $HOME/.bash_profile ]
-# then
-#     grepResult=$(cat $HOME/.bash_profile | grep PATH | grep myshell)
-#     echo $HOME/.bash_profile $grepResult
-#     if [ ${#grepResult} == 0 ]
-#     then
-#         echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.bash_profile
-#     fi
-# fi
-
-
-
-# if [ -e $HOME/.bashrc ]
-# then
-#     grepResult=$(cat $HOME/.bashrc | grep PATH | grep myshell)
-#     echo $HOME/.bashrc $grepResult
-#     if [ ${#grepResult} == 0 ]
-#     then
-#         echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.bashrc
-#     fi
-# fi
-
-
-
-# if [ -e $HOME/.profile ]
-# then
-#     grepResult=$(cat $HOME/.profile | grep PATH | grep myshell)
-#     echo $HOME/.profile $grepResult
-#     if [ ${#grepResult} == 0 ]
-#     then
-#         echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.profile
-#     fi
-# fi
-
-
-
-if [ -e $HOME/.zshrc ]
+if [ -e ~/.bash_profile ]
 then
-    grepResult=$(cat $HOME/.zshrc | grep PATH | grep myshell)
-    echoMe $HOME/.zshrc $grepResult
-
+    echoCo      'cat ~/.bash_profile | grep PATH | grep myshell'
+    grepResult=$(cat ~/.bash_profile | grep PATH | grep myshell)
+    echo $grepResult
     if [ ${#grepResult} == 0 ]
     then
-        echoCo "echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.zshrc"
-                echo 'export PATH=$PATH:$HOME/.myshell' >> $HOME/.zshrc
+        echoCo $'echo \'export PATH=$PATH:~/.myshell\' >> ~/.bash_profile'
+                 echo 'export PATH=$PATH:~/.myshell' >> ~/.bash_profile
     fi
 fi
+
+
+if [ -e ~/.bashrc ]
+then
+    echoCo      'cat ~/.bashrc | grep PATH | grep myshell'
+    grepResult=$(cat ~/.bashrc | grep PATH | grep myshell)
+    echo $grepResult
+    if [ ${#grepResult} == 0 ]
+    then
+        echoCo $'echo \'export PATH=$PATH:~/.myshell\' >> ~/.bashrc'
+                 echo 'export PATH=$PATH:~/.myshell' >> ~/.bashrc
+    fi
+fi
+
+
+if [ -e ~/.profile ]
+then
+    echoCo      'cat ~/.profile | grep PATH | grep myshell'
+    grepResult=$(cat ~/.profile | grep PATH | grep myshell)
+    echo $grepResult
+    if [ ${#grepResult} == 0 ]
+    then
+        echoCo $'echo \'export PATH=$PATH:~/.myshell\' >> ~/.profile'
+                 echo 'export PATH=$PATH:~/.myshell' >> ~/.profile
+    fi
+fi
+
+
+if [ -e ~/.zshrc ]
+then
+    echoCo      'cat ~/.zshrc | grep PATH | grep myshell'
+    grepResult=$(cat ~/.zshrc | grep PATH | grep myshell)
+    echo $grepResult
+    if [ ${#grepResult} == 0 ]
+    then
+        echoCo $'echo \'export PATH=$PATH:~/.myshell\' >> ~/.zshrc'
+                 echo 'export PATH=$PATH:~/.myshell' >> ~/.zshrc
+    fi
+fi
+

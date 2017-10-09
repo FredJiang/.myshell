@@ -1,0 +1,3 @@
+#!/bin/sh
+
+find /Volumes/MAC/百度云同步盘/blog/blog_FredJiang/source/_posts -type f -name "*md" | xargs -I param bash -c "grep 'tags.*$1' param && open param"
