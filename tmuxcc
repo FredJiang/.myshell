@@ -1,9 +1,17 @@
 #!/bin/sh
 
-# nohup tmuxinator start $1 >/dev/null 2>&1 &
+grepResult=$(tmux ls | grep "^$1:" | cut -d":" -f1)
 
-# sleep 6
+if [ ${#grepResult} == 0 ]; then
+    echo "start $1"
+    
+    nohup tmuxinator start $1 >/dev/null 2>&1 &
 
-# tmux ls
+    sleep 8
+else
+    echo "$1 has started"
+fi
+
+tmux ls
 
 tmux -CC attach -t $1

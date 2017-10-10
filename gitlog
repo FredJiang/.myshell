@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# https://stackoverflow.com/questions/37801342/using-git-log-to-display-files-changed-during-merge
+
+# git log -p will generate the patch (the diff) for every commit selected. 
+# For a single file, use git log --follow -p $file.
+
+# https://blog.andrewray.me/a-better-git-blame/
+
+export PAGER="$PAGER -N"
+git log -p -m --follow -M --stat -- $1
+
