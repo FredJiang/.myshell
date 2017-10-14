@@ -1,17 +1,25 @@
 #!/bin/sh
 
-grepResult=$(tmux ls | grep "^$1:" | cut -d":" -f1)
+# https://stackoverflow.com/questions/13570327/shell-script-deleting-a-substring
+# http://tldp.org/LDP/abs/html/parameter-substitution.html
+
+# foo=${foo#$prefix}
+# foo=${foo%$suffix}
+
+SESSIONNAME=${1%.yml}
+
+grepResult=$(tmux ls | grep "^$SESSIONNAME:" | cut -d":" -f1)
 
 if [ ${#grepResult} == 0 ]; then
-    echo "start $1"
+    echo "start $SESSIONNAME"
     
-    nohup tmuxinator start $1 >/dev/null 2>&1 &
+    nohup tmuxinator start $SESSIONNAME >/dev/null 2>&1 &
 
     sleep 8
 else
-    echo "$1 has started"
+    echo "$SESSIONNAME has started"
 fi
 
 tmux ls
 
-tmux -CC attach -t $1
+tmux -CC attach -t $SESSIONNAME
