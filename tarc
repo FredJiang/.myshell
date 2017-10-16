@@ -1,5 +1,5 @@
 #! /bin/bash
 
-DATE=`date '+%Y-%m-%d_%H-%M-%S'`
+DATE=`date '+%Y-%m-%d-%H-%M-%S'`
 
-tar zcvf "$1_$DATE.tar.gz" $1
+tar zcvf "$1-$DATE.tar.gz" $1

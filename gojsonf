@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# https://github.com/ChimeraCoder/gojson
+
+FILENAMEWITHSUFFIX=$1
+
+FILENAME=${1%.*}
+# echo $FILENAME
+
+STRUCTNAME=$(tr a-z A-Z <<< ${FILENAME:0:1})${FILENAME:1}
+# echo $STRUCTNAME
+
+gojson -input=$FILENAMEWITHSUFFIX -name=$STRUCTNAME -o=$FILENAME.go

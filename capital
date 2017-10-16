@@ -1,4 +1,0 @@
-echo ------------------------
-echo usage: command \'params\'
-echo ------------------------
-echo $1 | tr a-z A-Z
