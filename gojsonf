@@ -2,6 +2,7 @@
 
 # https://github.com/ChimeraCoder/gojson
 
+
 FILENAMEWITHSUFFIX=$1
 
 FILENAME=${1%.*}
@@ -10,4 +11,10 @@ FILENAME=${1%.*}
 STRUCTNAME=$(tr a-z A-Z <<< ${FILENAME:0:1})${FILENAME:1}
 # echo $STRUCTNAME
 
-gojson -input=$FILENAMEWITHSUFFIX -name=$STRUCTNAME -o=$FILENAME.go
+PWDResult=$(pwd)
+# echo $PWDResult
+
+PKGNAME=${PWDResult##*/}
+# echo $PKGNAME
+
+gojson -input=$FILENAMEWITHSUFFIX -name=$STRUCTNAME -o=$FILENAME.go -pkg=$PKGNAME
