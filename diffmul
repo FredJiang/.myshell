@@ -1,0 +1,22 @@
+#! /bin/bash
+
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
+
+
+function echoMe {
+    echo -e "\033[35m$@\033[0m"
+}
+
+
+for var in "$@"
+do
+    if [ ! $1 = $var ]; then
+        echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+        echoCo "diff --exclude=.DS_Store --exclude=.git -r $1 $var"
+                diff --exclude=.DS_Store --exclude=.git -r $1 $var
+        echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+    fi
+done
