@@ -48,6 +48,31 @@ function install_gawk {
 install_gawk
 
 
+function install_shellcheck {
+    if which shellcheck > /dev/null; then
+        echoMe 'shellcheck has installed'
+    else
+        if which apt-get > /dev/null; then
+            echoCo 'sudo apt-get install -y shellcheck'
+                    sudo apt-get install -y shellcheck
+        fi
+
+        if which yum > /dev/null; then
+            echoCo 'sudo yum install -y shellcheck'
+                    sudo yum install -y shellcheck
+        fi
+
+        if which brew >/dev/null; then
+            echoCo 'brew install shellcheck'
+                    brew install shellcheck
+        fi
+    fi
+}
+
+
+install_shellcheck
+
+
 case "$OSTYPE" in
   solaris*)
     echoMe "SOLARIS"
