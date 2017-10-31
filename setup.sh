@@ -58,8 +58,10 @@ function install_shellcheck {
         fi
 
         if which yum > /dev/null; then
-            echoCo 'sudo yum install -y shellcheck'
-                    sudo yum install -y shellcheck
+            echoCo 'sudo yum install -y epel-release'
+                    sudo yum install -y epel-release
+            echoCo 'sudo yum install -y ShellCheck'
+                    sudo yum install -y ShellCheck
         fi
 
         if which brew >/dev/null; then
