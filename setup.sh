@@ -46,20 +46,20 @@ echoCo 'git submodule update'
 
 
 function install_gawk {
-    if which gawk > /dev/null; then
+    if which gawk > /dev/null 2>&1; then
         echoMe 'gawk has installed'
     else
-        if which apt-get > /dev/null; then
+        if which apt-get > /dev/null 2>&1; then
             echoCo 'sudo apt-get install -y gawk'
                     sudo apt-get install -y gawk
         fi
 
-        if which yum > /dev/null; then
+        if which yum > /dev/null 2>&1; then
             echoCo 'sudo yum install -y gawk'
                     sudo yum install -y gawk
         fi
 
-        if which brew >/dev/null; then
+        if which brew > /dev/null 2>&1; then
             echoCo 'brew install gawk'
                     brew install gawk
         fi
@@ -71,15 +71,15 @@ install_gawk
 
 
 function install_shellcheck {
-    if which shellcheck > /dev/null; then
+    if which shellcheck > /dev/null 2>&1; then
         echoMe 'shellcheck has installed'
     else
-        if which apt-get > /dev/null; then
+        if which apt-get > /dev/null 2>&1; then
             echoCo 'sudo apt-get install -y shellcheck'
                     sudo apt-get install -y shellcheck
         fi
 
-        if which yum > /dev/null; then
+        if which yum > /dev/null 2>&1; then
 
             CentOSVersion=$(grep -oE '[0-9]+\.[0-9]+' /etc/redhat-release)
             echoMe CentOSVersion $CentOSVersion
@@ -88,10 +88,12 @@ function install_shellcheck {
                         sudo yum install -y epel-release
                 echoCo 'sudo yum install -y ShellCheck'
                         sudo yum install -y ShellCheck
+            else
+                echoMe "ignore ShellCheck"
             fi
         fi
 
-        if which brew >/dev/null; then
+        if which brew > /dev/null 2>&1; then
             echoCo 'brew install shellcheck'
                     brew install shellcheck
         fi
@@ -103,15 +105,15 @@ install_shellcheck
 
 
 function install_axel {
-    if which axel > /dev/null; then
+    if which axel > /dev/null 2>&1; then
         echoMe 'axel has installed'
     else
-        if which apt-get > /dev/null; then
+        if which apt-get > /dev/null 2>&1; then
             echoCo 'sudo apt-get install -y axel'
                     sudo apt-get install -y axel
         fi
 
-        if which yum > /dev/null; then
+        if which yum > /dev/null 2>&1; then
             # # CentOS release 6.9 (Final)
             # wget ftp://fr2.rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/axel-2.4-1.el6.rf.x86_64.rpm
             # sudo rpm -ivh axel-2.4-1.el6.rf.x86_64.rpm
@@ -119,7 +121,7 @@ function install_axel {
                     sudo rpm -ivh ftp://fr2.rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/axel-2.4-1.el6.rf.x86_64.rpm
         fi
 
-        if which brew >/dev/null; then
+        if which brew > /dev/null 2>&1; then
             echoCo 'brew install axel'
                     brew install axel
         fi
