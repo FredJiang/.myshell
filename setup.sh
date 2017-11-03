@@ -11,6 +11,28 @@ function echoMe {
 }
 
 
+case "$OSTYPE" in
+  solaris*)
+    echoMe "SOLARIS"
+    ;;
+  darwin*)
+    echoMe "OSX"
+    ;; 
+  linux*)
+    echoMe "LINUX"
+    ;;
+  bsd*) 
+    echoMe "BSD"
+    ;;
+  msys*) 
+    echoMe "WINDOWS"
+    ;;
+  *)
+    echoMe "unknown: $OSTYPE"
+    ;;
+esac
+
+
 echoCo 'git pull'
         git pull
 
@@ -75,26 +97,32 @@ function install_shellcheck {
 install_shellcheck
 
 
-case "$OSTYPE" in
-  solaris*)
-    echoMe "SOLARIS"
-    ;;
-  darwin*)
-    echoMe "OSX"
-    ;; 
-  linux*)
-    echoMe "LINUX"
-    ;;
-  bsd*) 
-    echoMe "BSD"
-    ;;
-  msys*) 
-    echoMe "WINDOWS"
-    ;;
-  *)
-    echoMe "unknown: $OSTYPE"
-    ;;
-esac
+function install_axel {
+    if which axel > /dev/null; then
+        echoMe 'axel has installed'
+    else
+        if which apt-get > /dev/null; then
+            echoCo 'sudo apt-get install -y axel'
+                    sudo apt-get install -y axel
+        fi
+
+        if which yum > /dev/null; then
+            # # CentOS release 6.9 (Final)
+            # wget ftp://fr2.rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/axel-2.4-1.el6.rf.x86_64.rpm
+            # sudo rpm -ivh axel-2.4-1.el6.rf.x86_64.rpm
+            echoCo 'sudo rpm -ivh ftp://fr2.rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/axel-2.4-1.el6.rf.x86_64.rpm'
+                    sudo rpm -ivh ftp://fr2.rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/axel-2.4-1.el6.rf.x86_64.rpm
+        fi
+
+        if which brew >/dev/null; then
+            echoCo 'brew install axel'
+                    brew install axel
+        fi
+    fi
+}
+
+
+install_axel
 
 
 if [ -e ~/.bash_profile ]; then
@@ -139,4 +167,3 @@ if [ -e ~/.zshrc ]; then
                  echo 'export PATH=$PATH:~/.myshell' >> ~/.zshrc
     fi
 fi
-

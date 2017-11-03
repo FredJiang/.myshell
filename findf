@@ -1,0 +1,3 @@
+#! /bin/sh
+
+find . -type f ! -path "*/\.git/*" ! -path "*/node_modules/*" ! -path "*/components/*" "$@"
