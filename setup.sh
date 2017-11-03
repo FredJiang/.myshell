@@ -80,10 +80,15 @@ function install_shellcheck {
         fi
 
         if which yum > /dev/null; then
-            echoCo 'sudo yum install -y epel-release'
-                    sudo yum install -y epel-release
-            echoCo 'sudo yum install -y ShellCheck'
-                    sudo yum install -y ShellCheck
+
+            CentOSVersion=$(grep -oE '[0-9]+\.[0-9]+' /etc/redhat-release)
+            echoMe CentOSVersion $CentOSVersion
+            if [ "$(echo "$CentOSVersion >= 7.0" | bc -l)" -eq 1 ]; then
+                echoCo 'sudo yum install -y epel-release'
+                        sudo yum install -y epel-release
+                echoCo 'sudo yum install -y ShellCheck'
+                        sudo yum install -y ShellCheck
+            fi
         fi
 
         if which brew >/dev/null; then
