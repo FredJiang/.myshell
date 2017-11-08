@@ -10,13 +10,16 @@ function echoMe {
     echo -e "\033[35m$@\033[0m"
 }
 
+echo ''
 
 for var in "$@"
 do
     if [ ! $1 = $var ]; then
-        echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-        echoCo "diff --exclude=.DS_Store --exclude=.git -r $1 $var"
+
+        echoCo "diff --exclude=.DS_Store --exclude=.git -r \\ \n$1 \\ \n$var"
+        echo '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
                 diff --exclude=.DS_Store --exclude=.git -r $1 $var
-        echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+        echo '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
+        echo ''
     fi
 done
