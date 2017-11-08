@@ -1,5 +1,5 @@
 #! /bin/sh
 
-echo add '-delete' to delete
+# echo add '-delete' to delete
 
 find . -type d -empty ! -path "*/\.git/*" ! -path "*/node_modules/*" ! -path "*/components/*" "$@"
