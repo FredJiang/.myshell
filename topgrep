@@ -1,0 +1,23 @@
+#! /bin/bash
+
+grepContent=$1
+
+pids=`ps aux | grep $grepContent | grep -v grep | awk '{print $2}' | tr '\n' ',' | sed 's/,$//'`
+
+echo "$pids"
+
+case "$OSTYPE" in
+  solaris*)
+    ;;
+  darwin*)
+    ;;
+  linux*)
+    top -c -p "$pids"
+    ;;
+  bsd*)
+    ;;
+  msys*)
+    ;;
+  *)
+    ;;
+esac
