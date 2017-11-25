@@ -1,0 +1,47 @@
+#! /bin/bash
+
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
+
+
+function echoMe {
+    echo -e "\033[35m$@\033[0m"
+}
+
+
+function echoEr {
+    echo -e "\033[31m$@\033[0m"
+}
+
+
+function setupDir {
+    echoMe '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
+    if [ ! -d ~/$1 ]
+    then
+        echoMe "no dir" $1
+    else
+        echoCo "cd ~/$1"
+                cd ~/$1
+        echoCo 'git pull'
+                git pull
+        echoCo 'git submodule init'
+                git submodule init
+        echoCo 'git submodule update'
+                git submodule update
+        echoCo "~/$1/setup.sh"
+                ~/$1/setup.sh
+    fi
+    echoMe '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
+}
+
+setupDir '.emacs.d'
+
+setupDir '.vim'
+
+setupDir '.zsh'
+
+setupDir '.myshell'
+
+setupDir '.tmux'
