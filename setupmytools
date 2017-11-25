@@ -20,7 +20,7 @@ function setupDir {
     echoMe '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
     if [ ! -d ~/$1 ]
     then
-        echoMe "no dir" $1
+        echoEr "no dir" $1
     else
         echoCo "cd ~/$1"
                 cd ~/$1
