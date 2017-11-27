@@ -16,6 +16,21 @@ function echoEr {
 }
 
 
+function gitStatusDiff {
+    echoMe '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
+    if [ ! -d ~/$1 ]
+    then
+        echoEr "no dir" $1
+    else
+        echoCo "cd ~/$1"
+                cd ~/$1
+        echoCo 'gitdiff'
+                gitdiff
+    fi
+    echoMe '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
+}
+
+
 function setupDir {
     echoMe '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
     if [ ! -d ~/$1 ]
@@ -35,6 +50,27 @@ function setupDir {
     fi
     echoMe '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
 }
+
+
+gitStatusDiff '.emacs.d'
+
+gitStatusDiff '.vim'
+
+gitStatusDiff '.zsh'
+
+gitStatusDiff '.myshell'
+
+gitStatusDiff '.tmux'
+
+
+echo "Do you wish to continue? "
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) break;;
+        No ) exit;;
+    esac
+done
+
 
 setupDir '.emacs.d'
 
