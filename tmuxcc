@@ -15,7 +15,7 @@ if [ ${#grepResult} == 0 ]; then
     
     nohup tmuxinator start $SESSIONNAME >/dev/null 2>&1 &
 
-    sleep 8
+    sleep 12
 else
     echo "$SESSIONNAME has started"
 fi
