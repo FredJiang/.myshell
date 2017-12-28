@@ -63,21 +63,35 @@ gitStatusDiff '.myshell'
 gitStatusDiff '.tmux'
 
 
-echo "Do you wish to continue? "
-select yn in "Yes" "No"; do
+function updateAll {
+    setupDir '.emacs.d'
+
+    setupDir '.vim'
+
+    setupDir '.zsh'
+
+    setupDir '.myshell'
+
+    setupDir '.tmux'
+}
+
+
+select yn in "update all" "git submodule init && git submodule update" "exit"; do
     case $yn in
-        Yes ) break;;
-        No ) exit;;
+        "update all")
+            updateAll
+            break
+            ;;
+        "git submodule init && git submodule update")
+            git submodule init && git submodule update
+            exit
+            ;;
+        "exit")
+            exit
+            ;;
     esac
 done
 
 
-setupDir '.emacs.d'
 
-setupDir '.vim'
 
-setupDir '.zsh'
-
-setupDir '.myshell'
-
-setupDir '.tmux'
