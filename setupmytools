@@ -1,6 +1,9 @@
 #! /bin/bash
 
 
+WORKINGDIR=$PWD
+
+
 function echoCo {
     echo -e "\033[32m$@\033[0m"
 }
@@ -76,15 +79,19 @@ function updateAll {
 }
 
 
-select yn in "update all" "git submodule init && git submodule update" "exit"; do
+select yn in "update all" "update current" "exit"; do
     case $yn in
         "update all")
             updateAll
             break
             ;;
-        "git submodule init && git submodule update")
-            git submodule init && git submodule update
-            exit
+        "update current")
+            cd $WORKINGDIR
+            echoCo 'pwd'
+                    pwd
+            echoCo 'git pull && git submodule init && git submodule update'
+                    git pull && git submodule init && git submodule update
+            break
             ;;
         "exit")
             exit
