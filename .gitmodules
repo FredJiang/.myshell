@@ -1,3 +1,6 @@
 [submodule "mypackages/showlinenum"]
 	path = mypackages/showlinenum
 	url = https://github.com/jay/showlinenum.git
+[submodule "mypackages/hhighlighter"]
+	path = mypackages/hhighlighter
+	url = https://github.com/paoloantinori/hhighlighter.git
