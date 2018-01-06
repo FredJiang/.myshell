@@ -1,0 +1,4 @@
+#! /bin/bash
+
+# sudo easy_install Pygments
+pygmentize -g $1
