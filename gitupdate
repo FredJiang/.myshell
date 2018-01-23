@@ -1,0 +1,18 @@
+#! /bin/bash
+
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
+
+
+echoCo 'git pull'
+        git pull
+
+
+echoCo 'git submodule init'
+        git submodule init
+
+
+echoCo 'git submodule update'
+        git submodule update
