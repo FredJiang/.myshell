@@ -1,0 +1,15 @@
+#! /bin/bash
+
+DartifactId=$1
+
+DgroupId=com.mycompany.app
+if [ $# -eq 2 ]; then
+  DgroupId=$2
+fi
+
+mvn \
+archetype:generate \
+-DgroupId=$DgroupId \
+-DartifactId=$DartifactId \
+-DarchetypeArtifactId=maven-archetype-quickstart \
+-DinteractiveMode=false
