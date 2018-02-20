@@ -1,0 +1,13 @@
+#!/bin/sh
+
+
+function echoEr {
+    echo -e "\033[31m$@\033[0m"
+}
+
+
+if which eslint > /dev/null; then
+    eslint --fix $1
+else
+    echoEr "eslint not exist"
+fi

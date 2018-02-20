@@ -1,0 +1,13 @@
+#!/bin/sh
+
+function echoEr {
+    echo "\033[31m$@\033[0m"
+}
+
+xmllint --format $1 > /tmp/xmllinttmp.xmllint
+
+if [ $? -eq 0 ]; then
+    cp /tmp/xmllinttmp.xmllint $1
+else
+    echoEr 'format failed'
+fi
