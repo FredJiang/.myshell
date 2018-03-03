@@ -1,8 +1,10 @@
 #! /bin/bash
 
+#https://maven.apache.org/guides/introduction/introduction-to-archetypes.html
+
 DartifactId=$1
 
-DgroupId=com.mycompany.app
+DgroupId=com.fred.app
 if [ $# -eq 2 ]; then
   DgroupId=$2
 fi
