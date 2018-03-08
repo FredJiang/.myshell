@@ -1,3 +1,9 @@
 #! /bin/bash
 
-cat /tmp/emacsCopyFredJiang.txt
+if [ ! "$1" = "fromEmacs" ] ; then
+    cat /tmp/emacsCopyFredJiang.txt
+fi
+
+if which pbcopy > /dev/null 2>&1; then
+    cat /tmp/emacsCopyFredJiang.txt | pbcopy
+fi
