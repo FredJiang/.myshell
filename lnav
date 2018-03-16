@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# http://lnav.org/
+# http://lnav.readthedocs.io/en/latest/
+# http://lnav.readthedocs.io/en/latest/hotkeys.html
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
+
+
+function echoMe {
+    echo -e "\033[35m$@\033[0m"
+}
+
+# echo $@
+
+# exit 0
+
+case "$OSTYPE" in
+  solaris*)
+    echoMe "SOLARIS"
+    ;;
+  darwin*)
+    # echoMe "OSX"
+    lnav_OSX $@
+    ;;
+  linux*)
+    # echoMe "LINUX"
+    lnav_LINUX $@
+    ;;
+  bsd*)
+    echoMe "BSD"
+    ;;
+  msys*)
+    echoMe "WINDOWS"
+    ;;
+  *)
+    echoMe "unknown: $OSTYPE"
+    ;;
+esac
