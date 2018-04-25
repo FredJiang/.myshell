@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# https://start.spring.io
+# spring help init
+# spring init --list
+
+DartifactId=$1
+
+DgroupId=com.fred
+if [ $# -eq 2 ]; then
+  DgroupId=$2
+fi
+
+spring init \
+--build=gradle \
+--groupId=$DgroupId \
+--artifactId=$DartifactId \
+--name=main \
+--description=$DartifactId \
+--dependencies=data-jpa,data-redis,h2,mybatis,mysql,thymeleaf,web \
+--packaging=war \
+$DartifactId
+
+
+
+
+

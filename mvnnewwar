@@ -1,5 +1,7 @@
 #! /bin/bash
 
+
+
 DartifactId=$1
 
 DgroupId=com.fred.app
@@ -21,6 +23,3 @@ mkdir -p $1/src/test/java \
 touch $1/.gitignore \
 && \
 touch $1/README.md
-
-
-

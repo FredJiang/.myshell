@@ -14,4 +14,15 @@ archetype:generate \
 -DgroupId=$DgroupId \
 -DartifactId=$DartifactId \
 -DarchetypeArtifactId=maven-archetype-quickstart \
--DinteractiveMode=false
+-DinteractiveMode=false \
+&& \
+mkdir -p $1/src/main/java \
+&& \
+mkdir -p $1/src/test/java \
+&& \
+touch $1/.gitignore \
+&& \
+touch $1/README.md \
+&& \
+mkdir -p $1/src/main/resources
+

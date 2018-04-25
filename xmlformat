@@ -4,6 +4,8 @@ function echoEr {
     echo -e "\033[31m$@\033[0m"
 }
 
+# export XMLLINT_INDENT="    "
+
 xmllint --format $1 > /tmp/xmllinttmp.xmllint
 
 if [ $? -eq 0 ]; then
