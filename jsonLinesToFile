@@ -1,0 +1,26 @@
+#!/bin/sh
+
+totalLine=`wc -l $1 | awk '{print $1}'`
+# echo $totalLine
+
+awk -v totalLine="$totalLine" '
+BEGIN {
+  print "[";
+}
+
+{
+  # print typeof(FNR);
+  # print typeof(totalLine);
+  if (FNR<totalLine) {
+    printf("  %s,\n", $0);
+  } else {
+    printf("  %s\n", $0);
+  }
+}
+
+END {
+  print "]";
+}
+' $1
+
+
