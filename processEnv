@@ -1,0 +1,4 @@
+#! /bin/sh
+
+PID=$1
+(cat /proc/$PID/environ; echo) | tr '\000' '\n'

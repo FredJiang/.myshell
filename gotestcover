@@ -1,0 +1,5 @@
+#! /bin/sh
+
+go test -v -cover -coverprofile=gotestcoverage.out "$@" && \
+go tool cover -html=gotestcoverage.out -o gotestcoverage.html && \
+open gotestcoverage.html

@@ -16,10 +16,12 @@ for var in "$@"
 do
     if [ ! $1 = $var ]; then
 
-        echoCo "diff --exclude=.DS_Store --exclude=.git -r \\ \n$1 \\ \n$var"
+        echoCo "diff --exclude=.DS_Store --exclude=.git --exclude=node_modules -r \\ \n$1 \\ \n$var"
         echo '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
-                diff --exclude=.DS_Store --exclude=.git -r $1 $var
+                diff --exclude=.DS_Store --exclude=.git --exclude=node_modules -r $1 $var
         echo '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
         echo ''
     fi
 done
+
+

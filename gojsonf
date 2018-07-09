@@ -17,4 +17,4 @@ PWDResult=$(pwd)
 PKGNAME=${PWDResult##*/}
 # echo $PKGNAME
 
-gojson -fmt=json -input=$FILENAMEWITHSUFFIX -name=$STRUCTNAME -o=$FILENAME.go -pkg=$PKGNAME -subStruct=true -tags=json,bson
+gojson -fmt=json -input=$FILENAMEWITHSUFFIX -name=$STRUCTNAME -o=$FILENAME.go -pkg=$PKGNAME -subStruct=true -tags=json,form,bson
