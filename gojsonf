@@ -1,20 +1,18 @@
-#! /bin/sh
+#!/usr/bin/env node
 
-# https://github.com/ChimeraCoder/gojson
+const childProcess = require('child_process');
+const path = require('path');
 
+let filePath = path.resolve(process.cwd(), process.argv[2]);
+let allData = require(filePath);
 
-FILENAMEWITHSUFFIX=$1
+const capitalizeFirstLetter = (string) => {
+  // return string.charAt(0).toUpperCase() + string.slice(1);
+  return string;
+};
 
-FILENAME=${1%.*}
-# echo $FILENAME
-
-STRUCTNAME=$(tr a-z A-Z <<< ${FILENAME:0:1})${FILENAME:1}
-# echo $STRUCTNAME
-
-PWDResult=$(pwd)
-# echo $PWDResult
-
-PKGNAME=${PWDResult##*/}
-# echo $PKGNAME
-
-gojson -fmt=json -input=$FILENAMEWITHSUFFIX -name=$STRUCTNAME -o=$FILENAME.go -pkg=$PKGNAME -subStruct=true -tags=json,form,bson
+Object.keys(allData).forEach(function (key) {
+  let command = `echo '${JSON.stringify(allData[key])}' | ~/workspacego/bin/gojson -fmt=json -name=${capitalizeFirstLetter(key)} -subStruct=true -tags=json,form,bson | grep -v 'package main'` + ' | sed -e "s/\\`$/ binding:\\"required\\"\\`/g"';
+  // console.log(command);
+  childProcess.execSync(command, {stdio: [0, 1, 2]});
+});

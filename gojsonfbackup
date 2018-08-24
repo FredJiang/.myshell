@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# https://github.com/ChimeraCoder/gojson
+
+
+FILENAMEWITHSUFFIX=$1
+
+FILENAME=${1%.*}
+# echo $FILENAME
+
+STRUCTNAME=$(tr a-z A-Z <<< ${FILENAME:0:1})${FILENAME:1}
+# echo $STRUCTNAME
+
+PWDResult=$(pwd)
+# echo $PWDResult
+
+PKGNAME=${PWDResult##*/}
+# echo $PKGNAME
+
+gojson -fmt=json -input=$FILENAMEWITHSUFFIX -name=$STRUCTNAME -o=$FILENAME.go -pkg=$PKGNAME -subStruct=true -tags=json,form,bson

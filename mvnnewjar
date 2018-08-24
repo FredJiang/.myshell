@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 #https://maven.apache.org/guides/introduction/introduction-to-archetypes.html
 

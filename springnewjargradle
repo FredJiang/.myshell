@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # https://start.spring.io
 # spring help init
