@@ -7,6 +7,24 @@
 
 # https://blog.andrewray.me/a-better-git-blame/
 
+# git help log
+
+# --follow
+#     Continue listing the history of a file beyond renames (works only for a single file).
+
+# -M[<n>], --find-renames[=<n>]
+#     If generating diffs, detect and report renames for each commit. For following files across renames while traversing history, see --follow. If n is specified, it is a threshold on
+#     the similarity index (i.e. amount of addition/deletions compared to the file's size). For example, -M90% means Git should consider a delete/add pair to be a rename if more than
+#     90% of the file hasn't changed. Without a % sign, the number is to be read as a fraction, with a decimal point before it. I.e., -M5 becomes 0.5, and is thus the same as -M50%.
+#     Similarly, -M05 is the same as -M5%. To limit detection to exact renames, use -M100%. The default similarity index is 50%.
+
+# --stat[=<width>[,<name-width>[,<count>]]]
+#     Generate a diffstat. By default, as much space as necessary will be used for the filename part, and the rest for the graph part. Maximum width defaults to terminal width, or 80
+#     columns if not connected to a terminal, and can be overridden by <width>. The width of the filename part can be limited by giving another width <name-width> after a comma. The
+#     width of the graph part can be limited by using --stat-graph-width=<width> (affects all commands generating a stat graph) or by setting diff.statGraphWidth=<width> (does not
+#     affect git format-patch). By giving a third parameter <count>, you can limit the output to the first <count> lines, followed by ...  if there are more.
+
 export PAGER="$PAGER -N"
-git log -p -m --follow -M --stat -- $1
+# git log -p -m --follow -M --stat -- $1
+git log -p -m -- $1
 

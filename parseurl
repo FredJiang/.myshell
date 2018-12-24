@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+let urlSource = process.argv[2];
+// urlSource = 'a=a&b=b';
+// urlSource = 'http://127.0.0.1:8080?c=c&d=d';
+
+const url = require('url');
+
 // https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
 
 let Reset = '\x1b[0m';
@@ -28,8 +34,9 @@ let BgMagenta = '\x1b[45m';
 let BgCyan = '\x1b[46m';
 let BgWhite = '\x1b[47m';
 
-let urlSource = process.argv[2];
-const url = require('url');
+if (urlSource.indexOf('?') === -1) {
+  urlSource = '?' + urlSource;
+}
 let parseResult = url.parse(urlSource, true);
 
 console.log(FgGreen);

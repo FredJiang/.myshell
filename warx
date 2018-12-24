@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# jar xvf $1
+unzip -qq $1 -d $1.dir

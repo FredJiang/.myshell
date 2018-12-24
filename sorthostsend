@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+
+let fileContent = fs.readFileSync('/etc/hosts', 'utf8');
+
+fileContent = fileContent.replace(/\n{2,}/g, '\n\n');
+
+let contentGroup2NList = fileContent.split('\n\n');
+
+for (let contentGroup2N of contentGroup2NList) {
+  let contentGroupNList = contentGroup2N.split('\n');
+  contentGroupNList = contentGroupNList.map(item => {
+    return item.split('').reverse().join('');
+  });
+  contentGroupNList = contentGroupNList.sort((left, right) => {
+    if (left.indexOf('#') !== -1 && left.indexOf('#') !== (left.length - 1)) {
+      left = left.substr(left.indexOf('#') + 1);
+    }
+    if (right.indexOf('#') !== -1 && right.indexOf('#') !== (right.length - 1)) {
+      right = right.substr(right.indexOf('#') + 1);
+    }
+    return left.localeCompare(right);
+  });
+  contentGroupNList = contentGroupNList.map(item => {
+    return item.split('').reverse().join('');
+  });
+  for (let contentGroupN of contentGroupNList) {
+    console.log(contentGroupN);
+  }
+  console.log('');
+}

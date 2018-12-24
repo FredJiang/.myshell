@@ -1,4 +1,3 @@
 #!/bin/bash
 
-
 jar xvf $1

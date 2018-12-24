@@ -1,0 +1,19 @@
+#!/bin/sh
+
+lsResult=$(ls $@ | rev | sort | rev)
+
+maxLength=0;
+for key in $lsResult;
+do
+    if [ ${#key} -gt $maxLength ]
+    then
+        maxLength=${#key}
+    fi
+    # echo $key ${#key}
+done
+# echo $maxLength
+
+for key in $lsResult;
+do
+    printf "%*s\n" $maxLength $key
+done

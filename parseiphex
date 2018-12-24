@@ -1,0 +1,58 @@
+#!/usr/bin/env node
+
+let ipHexString = process.argv[2];
+// ipHexString = '0xfffffe00';
+
+let ipHex = parseInt(ipHexString, 16);
+
+const chalk = require('chalk');
+
+const padLeft = (content, length, padding) => {
+  return (new Array(length - content.length + 1).join(padding) + content);
+};
+
+const getBinaryString = (n) => {
+  n = parseInt(n, 10);
+  let binaryString = n.toString(2);
+
+  let maxLength = 32;
+  let componentLength = maxLength / 4;
+
+  binaryString = padLeft(binaryString, maxLength, '0');
+
+  let binaryStringWithSpace = '';
+  for (let i = 0; i < maxLength; i += componentLength) {
+    binaryStringWithSpace = binaryStringWithSpace + (binaryStringWithSpace ? '.' : '') + binaryString.substr(i, componentLength);
+  }
+  return binaryStringWithSpace;
+};
+
+const highlightChar = (content, hChar) => {
+  let highlightContent = '';
+  for (let char of content) {
+    if (char === hChar) {
+      char = chalk.red(char);
+    }
+    highlightContent += char;
+  }
+  return highlightContent;
+};
+
+let ipBinary = getBinaryString(ipHex);
+let ipBinaryComponents = ipBinary.split('.');
+let ipDec = '';
+let ipHexDotString = '';
+for (let i = 0; i < ipBinaryComponents.length; i++) {
+  let ipBinaryComponent = ipBinaryComponents[i];
+  ipBinaryComponent = parseInt(ipBinaryComponent, 2).toString(10);
+  ipDec += padLeft(ipBinaryComponent, 8, ' ') + (i === ipBinaryComponents.length - 1 ? '' : '.');
+}
+
+for (let i = 2; i < ipHexString.length;) {
+  ipHexDotString += padLeft(ipHexString.substr(i, 2), 8, ' ') + (i === ipHexString.length - 2 ? '' : '.');
+  i = i + 2;
+}
+
+console.log(ipHexDotString);
+console.log(ipDec);
+console.log(highlightChar(ipBinary, '1'));

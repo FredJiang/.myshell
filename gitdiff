@@ -6,4 +6,13 @@ git status
 
 echo ""
 
+# git diff                                 // 当前文件和暂存区文件的差别
+# git diff HEAD                            // 与上次 commit 的差别
+# git diff HEAD^                           // 与上上次的差别
+# git diff HEAD^^                          // 与上上上次的差别
+# git diff HEAD~5                          // 与前面第5次 commit 的差别
+# git diff HEAD^..HEAD                     // 中间是两个点的差别
+# git diff f5fdjsalfjdskaf..4fdklsajfdksaf // 两个不同 hash 值记录之间的差别
+# git diff master bird                     // 两个 branch 之间的差别
+
 git diff --color=always $1 | ~/.myshell/mypackages/showlinenum/showlinenum.awk

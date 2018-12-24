@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 DartifactId=$1
 
 DgroupId=com.fred.app

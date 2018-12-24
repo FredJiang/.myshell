@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# </dev/null
+# https://github.com/ggreer/the_silver_searcher/issues/943
+
+filePath=$(ag 'public static void main' -H -G 'java$' ./src </dev/null | head -n 1)
+echo "filePath $filePath"
+mainClassName=$(echo $filePath | sed -e "s/src\/main\/java\///g")
+echo "mainClassName $mainClassName"
+mainClassName=$(echo $mainClassName | sed -e "s/.java//g")
+echo "mainClassName $mainClassName"
+mainClassName=$(echo $mainClassName | sed -e "s/\//\./g")
+echo "mainClassName $mainClassName"
+
+echo mvn clean
+     mvn clean
+
+echo mvn compile
+     mvn compile
+
+# echo mvn package
+#      mvn package
+
+echo mvn exec:java $@ -Dexec.mainClass=$mainClassName -Dexec.cleanupDaemonThreads=false
+     mvn exec:java $@ -Dexec.mainClass=$mainClassName -Dexec.cleanupDaemonThreads=false
