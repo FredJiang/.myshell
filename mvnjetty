@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# https://www.eclipse.org/jetty/documentation/current/jetty-maven-plugin.html
+
+mvn clean org.eclipse.jetty:jetty-maven-plugin:9.4.9.v20180320:run -Djetty.http.port=$1
