@@ -1,3 +1,60 @@
 #!/bin/sh
 
-mvn clean org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.path='/' -Dmaven.tomcat.port=$1
+# mvn clean org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.path='/' -Dmaven.tomcat.port=$1
+
+mvn -U clean compile war:exploded
+
+shutdownPort=8005
+httpPort=8080
+AJPPort=8009
+
+if [ $# -eq 1 ]
+  then
+    httpPort=$1
+    shutdownPort=$(($httpPort-1000))
+    AJPPort=$(($httpPort+1000))
+    
+fi
+
+# ls ./target
+# read -p 'build_finalName: ' build_finalName
+build_finalName=$(xpath pom.xml '/project/profiles/profile/activation[contains(activeByDefault, 'true')]/../build/finalName/text()' 2>/dev/null)
+
+
+echo 'build_finalName:' ${build_finalName}
+echo 'shutdownPort:' ${shutdownPort}
+echo 'httpPort:' ${httpPort}
+echo 'AJPPort:' ${AJPPort}
+
+
+export CATALINA_HOME="/opt/tomcat-8.0.53"
+export CATALINA_BASE="$(pwd)/target/${build_finalName}"
+
+
+if [ ! -d "${CATALINA_BASE}/temp" ]
+then
+    mkdir "${CATALINA_BASE}/temp"
+fi
+
+
+if [ ! -d "${CATALINA_BASE}/conf" ]
+then
+    cp -r "${CATALINA_HOME}/conf" "${CATALINA_BASE}/conf"
+fi
+
+
+cat "${CATALINA_HOME}/conf/server.xml" | \
+xmlstarlet edit --delete "//comment()" | \
+xmlstarlet edit --update "/Server[@port='8005']/@port"                   --value "${shutdownPort}" | \
+xmlstarlet edit --update "/Server/Service/Connector[@port='8080']/@port" --value "${httpPort}" | \
+xmlstarlet edit --update "/Server/Service/Connector[@port='8009']/@port" --value "${AJPPort}" \
+> "${CATALINA_BASE}/conf/server.xml"
+
+# xpath "${CATALINA_BASE}/conf/server.xml" "/Server/Service/Connector"
+# xpath "${CATALINA_BASE}/conf/server.xml" "/Server/Service/Connector[@port=\"${port}\"]/@port"
+
+
+echo "<Context path=\"\" docBase=\"${CATALINA_BASE}\" />" > "${CATALINA_BASE}/conf/Catalina/localhost/ROOT.xml"
+
+
+${CATALINA_HOME}/bin/catalina.sh run

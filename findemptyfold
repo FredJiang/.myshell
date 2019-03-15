@@ -1,5 +1,20 @@
 #!/bin/sh
 
-# echo add '-delete' to delete
+if [ ! "$1" = '-delete' ]
+then
+    echo 'add -delete to delete'
+fi
 
-find . -type d -empty ! -path "*/\.git/*" ! -path "*/node_modules/*" ! -path "*/components/*" "$@"
+set -o xtrace
+
+find . \
+-name '.*' \
+-mindepth 2
+
+find . \
+-type d \
+-empty \
+! -path "*/\.git/*" \
+! -path "*/node_modules/*" \
+! -path "*/components/*" \
+"$@"

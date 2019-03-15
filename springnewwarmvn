@@ -20,8 +20,3 @@ spring init \
 --dependencies=data-jpa,data-redis,h2,mybatis,mysql,thymeleaf,web \
 --packaging=war \
 $DartifactId
-
-
-
-
-

@@ -2,31 +2,55 @@
 
 const fs = require('fs');
 
-let fileContent = fs.readFileSync('/etc/hosts', 'utf8');
+const getHostsGroups = () => {
+  let fileContent = fs.readFileSync('/etc/hosts', 'utf8');
+  fileContent = fileContent.replace(/\n{2,}/g, '\n\n');
+  let hostsGroups = fileContent.split('\n\n');
+  return hostsGroups;
+};
 
-fileContent = fileContent.replace(/\n{2,}/g, '\n\n');
-
-let contentGroup2NList = fileContent.split('\n\n');
-
-for (let contentGroup2N of contentGroup2NList) {
-  let contentGroupNList = contentGroup2N.split('\n');
-  contentGroupNList = contentGroupNList.map(item => {
+const sortFromEnd = (hosts) => {
+  hosts = hosts.split('\n');
+  hosts = hosts.map(item => {
     return item.split('').reverse().join('');
   });
-  contentGroupNList = contentGroupNList.sort((left, right) => {
-    if (left.indexOf('#') !== -1 && left.indexOf('#') !== (left.length - 1)) {
-      left = left.substr(left.indexOf('#') + 1);
-    }
-    if (right.indexOf('#') !== -1 && right.indexOf('#') !== (right.length - 1)) {
-      right = right.substr(right.indexOf('#') + 1);
-    }
+  hosts = hosts.sort((left, right) => {
+    // +， ?， *， {n}， {n,}， {n,m}    贪婪匹配模式
+    // +?，??，*?，{n}?，{n,}?，{n,m}? 非贪婪匹配模式，贪婪模式的标识符后面加上一个 ?
+    left = left.replace(/([\s\S]+? # )/, '');
+    right = right.replace(/([\s\S]+? # )/, '');
     return left.localeCompare(right);
   });
-  contentGroupNList = contentGroupNList.map(item => {
+  hosts = hosts.map(item => {
     return item.split('').reverse().join('');
   });
-  for (let contentGroupN of contentGroupNList) {
-    console.log(contentGroupN);
+  return hosts;
+};
+
+const printSortedWithFormat = (hosts) => {
+  for (let host of hosts) {
+    let hostMatchResult = host.match(/ ([a-zA-Z]+\.)+([a-zA-Z]+)/);
+    let ipMatchResult = host.match(/(#* *[0-9]+\.){3,3}([0-9]+)/);
+
+    let shouldFormat = false;
+
+    if (ipMatchResult && ipMatchResult.length &&
+      hostMatchResult && hostMatchResult.length &&
+      ipMatchResult.index < hostMatchResult.index) {
+      shouldFormat = true;
+    }
+    if (shouldFormat) {
+      let spaceCount = 59 - (ipMatchResult[0].length + hostMatchResult[0].length);
+      console.log(`${ipMatchResult[0]} ${new Array(spaceCount).join(' ')} ${host.substr(hostMatchResult.index)}`);
+    } else {
+      console.log(host);
+    }
   }
+};
+
+let hostsGroups = getHostsGroups();
+for (let hosts of hostsGroups) {
+  hosts = sortFromEnd(hosts);
+  printSortedWithFormat(hosts);
   console.log('');
 }

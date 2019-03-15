@@ -1,3 +1,28 @@
-#!/bin/bash
+#!/bin/sh
 
-jar xvf $1
+# http://jd.benow.ca/
+
+set -e
+
+# http://www.benf.org/other/cfr/
+cfr_jar_name="cfr-0.139.jar"
+cfr_jar_path="$HOME/${cfr_jar_name}"
+if [ ! -f "${cfr_jar_path}" ]
+then
+    wget --directory-prefix=$HOME/ "http://www.benf.org/other/cfr/${cfr_jar_name}"
+fi
+
+jarx_dir="${1}_jarx_dir"
+if [ ! -d "${jarx_dir}" ]
+then
+    mkdir ${jarx_dir}
+fi
+
+cp -f $1 ${jarx_dir}
+
+cd ${jarx_dir}
+
+jar xf $1
+
+# java -jar ${cfr_jar_path} --help
+java -jar ${cfr_jar_path} $1 --silent true --outputdir sourceCode

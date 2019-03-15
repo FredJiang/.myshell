@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# https://www.tecmint.com/enable-shell-debug-mode-linux/
+
+firstLine=$(head -n 1 $1)
+
+if [ ${firstLine} = '#!/bin/bash' ]; then
+    PS4='>$LINENO: ' bash -x "$@"
+elif [ ${firstLine} = '#!/usr/bin/env bash' ]; then
+    PS4='>$LINENO: ' bash -x "$@"
+elif [ ${firstLine} = '#!/bin/sh' ]; then
+    PS4='>$LINENO: ' sh   -x "$@"
+else
+    echo "not support ${firstLine}"
+    exit 1
+fi
