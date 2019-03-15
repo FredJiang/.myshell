@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # mvn clean org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.path='/' -Dmaven.tomcat.port=$1
 
