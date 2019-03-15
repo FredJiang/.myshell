@@ -34,7 +34,32 @@ AJPPort=$(($httpPort+1000))
 
 # ls ./target
 # read -p 'build_finalName: ' build_finalName
-build_finalName=$(xpath pom.xml '/project/profiles/profile/activation[contains(activeByDefault, 'true')]/../build/finalName/text()' 2>/dev/null)
+case "$OSTYPE" in
+  solaris*)
+    echo "SOLARIS"
+    exit 1
+    ;;
+  darwin*)
+    echo "OSX"
+    build_finalName=$(xpath pom.xml '/project/profiles/profile/activation[contains(activeByDefault, 'true')]/../build/finalName/text()'         2>/dev/null)
+    ;;
+  linux*)
+    echo "LINUX"
+    build_finalName=$(xpath -e      '/project/profiles/profile/activation[contains(activeByDefault, 'true')]/../build/finalName/text()' pom.xml 2>/dev/null)
+    ;;
+  bsd*)
+    echo "BSD"
+    exit 1
+    ;;
+  msys*)
+    echo "WINDOWS"
+    exit 1
+     ;;
+  *)
+    echo "unknown: $OSTYPE"
+    exit 1
+    ;;
+esac
 
 
 echo 'build_finalName:' ${build_finalName}
