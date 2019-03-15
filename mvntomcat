@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+set -e
+
+
 # mvn clean org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.path='/' -Dmaven.tomcat.port=$1
 
 which xpath > /dev/null
@@ -95,6 +99,10 @@ xmlstarlet edit --update "/Server/Service/Connector[@port='8009']/@port" --value
 # xpath "${CATALINA_BASE}/conf/server.xml" "/Server/Service/Connector[@port=\"${port}\"]/@port"
 
 
+if [ ! -d "${CATALINA_BASE}/conf/Catalina/localhost" ]
+then
+    mkdir -p "${CATALINA_BASE}/conf/Catalina/localhost"
+fi
 echo "<Context path=\"\" docBase=\"${CATALINA_BASE}\" />" > "${CATALINA_BASE}/conf/Catalina/localhost/ROOT.xml"
 
 
