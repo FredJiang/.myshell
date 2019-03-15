@@ -2,6 +2,23 @@
 
 # mvn clean org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.path='/' -Dmaven.tomcat.port=$1
 
+which xpath > /dev/null
+if [ $? -ne 0 ]; then
+    echo 'xpath not exist'
+    echo 'ubuntu'
+    echo 'sudo apt-get update -y && sudo apt-get install -y libxml-xpath-perl'
+    exit 1
+fi
+
+which xmlstarlet > /dev/null
+if [ $? -ne 0 ]; then
+    echo 'xmlstarlet not exist'
+    echo 'ubuntu'
+    echo 'sudo apt-get update -y && sudo apt-get install -y xmlstarlet'
+    exit 1
+fi
+
+
 mvn -U clean compile war:exploded
 
 shutdownPort=8005
@@ -11,10 +28,9 @@ AJPPort=8009
 if [ $# -eq 1 ]
   then
     httpPort=$1
-    shutdownPort=$(($httpPort-1000))
-    AJPPort=$(($httpPort+1000))
-    
 fi
+shutdownPort=$(($httpPort-1000))
+AJPPort=$(($httpPort+1000))
 
 # ls ./target
 # read -p 'build_finalName: ' build_finalName
