@@ -1,8 +1,3 @@
 #!/bin/sh
 
-# find /Volumes/MAC/百度云同步盘/blog/blog_FredJiang/source/_posts -type f -name "*md" | xargs -I param bash -c "               grep 'tags.*$1' param && echo param"
-
-# head 慢
-  # find /Volumes/MAC/百度云同步盘/blog/blog_FredJiang/source/_posts -type f -name "*md"            -exec bash -c "head -n 5 {} | grep 'tags.*$1'      && echo open {}" \;
-
-find /Volumes/MAC/百度云同步盘/blog/blog_FredJiang/source/_posts -type f -name "*md"            -exec                         grep "tags.*$1"              {} + | sed -e 's/^/open /' | sed -e 's/\:tags\: \[/\  #\:tags\: \[/g'
+find /Volumes/MAC/百度云同步盘/blog/blog_FredJiang/source/_posts -type f -name "*md" -exec grep -i -e "tags.*[\[,\, ]$1" -e "tags.*$1[\, ,\]]" {} + | sed -e 's/^/open /' | sed -e 's/\:tags\: \[/\  #\:tags\: \[/g'

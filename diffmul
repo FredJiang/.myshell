@@ -1,24 +1,41 @@
 #!/bin/bash
 
-
 function echoCo {
     echo -e "\033[32m$@\033[0m"
 }
 
-
 function echoMe {
     echo -e "\033[35m$@\033[0m"
 }
+
+echoMe $@
 
 echo ''
 
 for var in "$@"
 do
     if [ ! "$1" = "$var" ]; then
-
-        echoCo "diff --exclude=.DS_Store --exclude=.git --exclude=.idea --exclude=.log --exclude=node_modules -r \\ \n$1 \\ \n$var"
+        echoCo "diff --exclude='*.iml' --exclude='*.log' --exclude=.DS_Store --exclude=.git --exclude=.idea --exclude=node_modules --exclude=target -r \\ \n$1 \\ \n$var"
         echo '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
-                diff --exclude=.DS_Store --exclude=.git --exclude=.idea --exclude=.log --exclude=node_modules -r "$1" "$var" | ack --passthru 'diff'
+                diff --exclude='*.iml' --exclude='*.log' --exclude=.DS_Store --exclude=.git --exclude=.idea --exclude=node_modules --exclude=target -r     "$1"    "$var" \
+                | awk '
+                    {
+                        print $0;
+                        if (\
+                            $1=="diff" && \
+                            $2=="--exclude='\''*.iml'\''" && \
+                            $3=="--exclude='\''*.log'\''" && \
+                            $4=="--exclude=.DS_Store" && \
+                            $5=="--exclude=.git" && \
+                            $6=="--exclude=.idea" && \
+                            $7=="--exclude=node_modules" && \
+                            $8=="--exclude=target" && \
+                            $9=="-r") {
+                            print "\033[32m" $(NF-1) "\n" $NF "\033[0m";
+                        }
+                    }' \
+                | ack --flush --passthru --color --color-match=red    'diff ' \
+                | ack --flush --passthru --color --color-match=yellow 'Only in'
         echo '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
         echo ''
     fi

@@ -5,6 +5,9 @@ set -e
 
 
 # mvn clean org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.path='/' -Dmaven.tomcat.port=$1
+# mvn clean org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.path='/' -Dmaven.tomcat.port=$1 -Dmaven.tomcat.ajp.port=$2
+# 如果 pom.xml 中配置了 tomcat7-maven-plugin 插件，则使用命令 mvn tomcat7:run 注意不是 mvn tomcat:run，不然的话服务会返回 http code 400
+
 
 which xpath > /dev/null
 if [ $? -ne 0 ]; then

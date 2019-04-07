@@ -1,0 +1,175 @@
+#!/usr/bin/env node
+
+const Promise = require('bluebird');
+const _ = require('lodash');
+const asyncawaitAsync = require('asyncawait/async');
+const asyncawaitAwait = require('asyncawait/await');
+const querystring = require('querystring');
+const request = require('request');
+const { exec } = require('child_process');
+
+let myRequestPromise = (reqAndRes) => {
+  return new Promise((resolve, reject) => {
+    let form = reqAndRes.req;
+
+    let requestOptions = {
+      'rejectUnauthorized' : false,
+      'method'             : reqAndRes.method
+    };
+
+    if (_.get(reqAndRes, 'method', '').toLowerCase() === 'GET'.toLowerCase()) {
+      requestOptions['url'] = `${protocolHostPort}${reqAndRes.path}?${querystring.stringify(reqAndRes.req)}`;
+    }
+    if (_.get(reqAndRes, 'method', '').toLowerCase() === 'POST'.toLowerCase()) {
+      requestOptions['url'] = `${protocolHostPort}${reqAndRes.path}`;
+
+      if (_.get(reqAndRes, 'headers.content-type', '').indexOf('json') !== -1) {
+        requestOptions['json'] = form;
+      } else {
+        requestOptions['form'] = form;
+      }
+    }
+
+    if (_.get(reqAndRes, 'headers.accept-encoding', '').indexOf('gzip') !== -1) {
+      requestOptions['gzip'] = true;
+    }
+
+    requestOptions['headers'] = reqAndRes['headers'];
+
+    request(requestOptions, (error, response, body) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({
+          error,
+          requestOptions,
+          response,
+          body
+        });
+      }
+    });
+  });
+};
+
+const showAlert = (title, notification) => {
+  return new Promise((resolve, reject) => {
+    // exec(`osascript -e "tell app \\"System Events\\" to display dialog \\"${title}\\n${notification}\\""`, (err, stdout, stderr) => {
+    exec(`osascript -e "display notification \\"${notification}\\" with title \\"${title}\\""`, (err, stdout, stderr) => {
+      console.log(`err: ${err}`);
+      console.log(`stdout: ${stdout}`);
+      console.log(`stderr: ${stderr}`);
+      resolve();
+    });
+  });
+};
+
+const funcs = asyncawaitAsync((reqAndResList) => {
+  for (let i = 0; i < reqAndResList.length; i++) {
+    console.log('----------------------------------------------------------------');
+    let reqAndRes = reqAndResList[i];
+
+    if (reqAndRes.beforeCall) {
+      asyncawaitAwait(reqAndRes.beforeCall());
+    }
+
+    let bodyJSON = {};
+    let {
+      error,
+      response,
+      requestOptions,
+      body
+    } = asyncawaitAwait(myRequestPromise(reqAndRes));
+    console.log('requestOptions\n', requestOptions, '\n');
+    console.log('response.request.headers\n', response.request.headers, '\n');
+    console.log('response.request.body\n', response.request.body, '\n');
+
+    console.log('response.statusCode\n', response.statusCode, '\n');
+    console.log('response.headers\n', response.headers, '\n');
+    console.log('body\n', body, '\n');
+    // console.log(unescape('\u65e0\u6548\u67e5\u8be2\u8bcd'.replace(/\\u/g, '%u')))
+    if (_.isString(body)) {
+      console.log('body unescape\n', unescape(body.replace(/\\u/g, '%u')), '\n');
+      bodyJSON = JSON.parse(body);
+    } else if (_.isPlainObject(body)) {
+      console.log('body msg unescape\n', unescape(_.get(body, 'msg', '').replace(/\\u/g, '%u')), '\n');
+      bodyJSON = body;
+    }
+
+    console.log('error\n', error, '\n');
+
+    if (bodyJSON.status_code + '' !== '0') {
+      asyncawaitAwait(showAlert(_.get(reqAndResList, '0.req.word'), _.get(bodyJSON, 'msg')));
+      throw new Error(_.get(bodyJSON, 'msg'));
+    }
+
+    if (reqAndRes.afterCall) {
+      asyncawaitAwait(reqAndRes.afterCall(bodyJSON));
+    }
+  }
+});
+
+const protocolHostPort = 'https://www.shanbay.com';
+
+const commonHeader = {
+  'accept'           : 'application/json, text/javascript, */*; q=0.01',
+  'accept-encoding'  : 'gzip, deflate, br',
+  'accept-language'  : 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+  'cache-control'    : 'no-cache',
+  'cookie'           : '_ga=GA1.2.333260953.1540372207; csrftoken=tr9h8aGeHUTCmYJhQaNqxBQ8mrNDHKGQ; userid=39440353; __utmc=183787513; __utmz=183787513.1554288664.50.3.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); language_code=zh-CN; __utma=183787513.333260953.1540372207.1554306976.1554310218.52; __utmt=1; auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjI3MDEzMDEwOCIsImRldmljZSI6MCwiaXNfc3RhZmYiOmZhbHNlLCJpZCI6Mzk0NDAzNTMsImV4cCI6MTU1NTE3NTY4OH0.Y-I6VOK-p7f4ct6aYAAnAt4mo2t2xjbJ-uR2VZTUty0; __utmb=183787513.10.10.1554310218',
+  'pragma'           : 'no-cache',
+  'referer'          : 'https://www.shanbay.com/',
+  'user-agent'       : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
+  'x-requested-with' : 'XMLHttpRequest'
+};
+
+let reqAndResList = [
+  {
+    'path'    : '/api/v1/bdc/search/',
+    'method'  : 'GET',
+    'headers' : _.merge(commonHeader, {
+    }),
+    'req': {
+      'ersion' : '2',
+      'word'   : 'hello',
+      '_'      : Date.now()
+    },
+    afterCall: (body) => {
+      return new Promise((resolve, reject) => {
+        if (_.get(reqAndResList, '1')) {
+          _.set(reqAndResList, '1.req.id', _.get(body, 'data.id'));
+        }
+
+        // exec(`open ${_.get(body, 'data.url')}`, (err, stdout, stderr) => {
+        //   console.log(`err: ${err}`);
+        //   console.log(`stdout: ${stdout}`);
+        //   console.log(`stderr: ${stderr}`);
+        // });
+        //
+
+        asyncawaitAwait(showAlert(_.get(reqAndResList, '0.req.word'), `/${_.get(body, 'data.pronunciations.us')}/\n${_.get(body, 'data.definition')}`));
+
+        resolve();
+      });
+    }
+  },
+  {
+    'path'    : '/api/v1/bdc/learning/',
+    'method'  : 'POST',
+    'headers' : _.merge(commonHeader, {
+      'content-type' : 'application/json',
+      'origin'       : 'https://www.shanbay.com'
+    }),
+    'req': {
+      'id'           : 3130,
+      'content_type' : 'vocabulary'
+    }
+  }
+
+];
+
+if (process.argv.length === 3) {
+  _.set(reqAndResList, '0.req.word', process.argv[2]);
+}
+// _.set(reqAndResList, '0.req.word', 'grunt');
+
+funcs(reqAndResList);

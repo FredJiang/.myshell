@@ -1,0 +1,195 @@
+#!/usr/bin/env node
+
+let ip = '127.0.0.1';
+// let ip = '127.0.0.1/32';
+// let ip = '0x7f.00.00.01';
+// let ip = '01111111.00000000.00000000.00000001';
+
+if (process.argv.length === 3) {
+  ip = process.argv[2];
+}
+
+const chalk = require('chalk');
+
+const padLeft = (content, length, padding) => {
+  return (new Array(length - content.length + 1).join(padding) + content);
+};
+
+const highlightString = (content, hConfig = {'start': -1, 'end': -1, 'color': 'yellow'}) => {
+  let highlightContent = '';
+
+  for (let i = 0; i < content.length; i++) {
+    let char = content[i];
+    if (hConfig.start <= i && i <= hConfig.end) {
+      char = chalk.keyword(hConfig.color)(char);
+    }
+    highlightContent += char;
+  }
+  return highlightContent;
+};
+
+const highlightChar = (content, hConfig = {'1': 'red', '0': 'green'}) => {
+  let highlightContent = '';
+  for (let char of content) {
+    if (hConfig[char]) {
+      char = chalk.keyword(hConfig[char])(char);
+    }
+    highlightContent += char;
+  }
+  return highlightContent;
+};
+
+const isIpHex = (ip) => {
+  let hexIndex = ip.indexOf('0x');
+  if (hexIndex === 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const isIpDot = (ip) => {
+  let ipComponents = ip.split('.');
+  let muskIndex = ip.indexOf('/');
+  if (ipComponents.length === 4 && muskIndex < 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const isIpDotBinary = (ip) => {
+  let ipComponents = ip.split('.');
+  let muskIndex = ip.indexOf('/');
+  if (ipComponents.length === 4 && muskIndex < 0 && ipComponents[0].length === 8) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const isIpDotMusk = (ip) => {
+  let ipComponents = ip.split('.');
+  let muskIndex = ip.indexOf('/');
+  if (ipComponents.length === 4 && muskIndex > 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const getIpHexPrintFromIpDot = (ipDot) => {
+  let ipComponents = ipDot.split('.');
+  let resultString = '';
+  for (let i = 0; i < ipComponents.length; i++) {
+    let ipComponent = parseInt(ipComponents[i]).toString(16);
+    resultString += padLeft(padLeft(ipComponent, 2, '0'), 8, ' ') + (i === ipComponents.length - 1 ? '' : '.');
+  }
+  return resultString;
+};
+
+const getIpDotPrintFromIpDot = (ipDot) => {
+  let ipComponents = ipDot.split('.');
+  let resultString = '';
+  for (let i = 0; i < ipComponents.length; i++) {
+    let ipComponent = ipComponents[i];
+    resultString += padLeft(ipComponent, 8, ' ') + (i === ipComponents.length - 1 ? '' : '.');
+  }
+  return resultString;
+};
+
+const getIpDotBinaryFromIpDot = (ipDot) => {
+  let ipComponents = ipDot.split('.');
+  let resultString = '';
+  for (let i = 0; i < ipComponents.length; i++) {
+    let ipComponent = parseInt(ipComponents[i], 10).toString(2);
+    resultString += padLeft(ipComponent, 8, '0') + (i === ipComponents.length - 1 ? '' : '.');
+  }
+
+  return resultString;
+};
+
+let ipDots = [];
+if (isIpDot(ip)) {
+  ipDots = [ip];
+}
+if (isIpHex(ip)) {
+  let ipComponents = [ip.substr(2 + 2 * 0, 2), ip.substr(2 + 2 * 1, 2), ip.substr(2 + 2 * 2, 2), ip.substr(2 + 2 * 3, 2)];
+  let resultString = '';
+  for (let i = 0; i < ipComponents.length; i++) {
+    let ipComponent = parseInt(ipComponents[i], 16).toString(10);
+    resultString += ipComponent + (i === ipComponents.length - 1 ? '' : '.');
+  }
+  ipDots = [resultString];
+}
+if (isIpDotBinary(ip)) {
+  let ipComponents =  ip.split('.');
+  let resultString = '';
+  for (let i = 0; i < ipComponents.length; i++) {
+    let ipComponent = parseInt(ipComponents[i], 2).toString(10);
+    resultString += ipComponent + (i === ipComponents.length - 1 ? '' : '.');
+  }
+  ipDots = [resultString];
+}
+if (isIpDotMusk(ip)) {
+  let ipHost = ip.split('/')[0];
+  let ipMust = ip.split('/')[1];
+
+  {
+    let ipComponents = getIpDotBinaryFromIpDot(ipHost).replace(/\./g, '');
+    let muskLenth = parseInt(ipMust);
+    ipComponents = ipComponents.substr(0, muskLenth) + padLeft('', ipComponents.length - muskLenth, '0');
+    ipComponents = [ipComponents.substr(0 + 8 * 0, 8), ipComponents.substr(0 + 8 * 1, 8), ipComponents.substr(0 + 8 * 2, 8), ipComponents.substr(0 + 8 * 3, 8)];
+    let resultString = '';
+    for (let i = 0; i < ipComponents.length; i++) {
+      let ipComponent = parseInt(ipComponents[i], 2).toString(10);
+      resultString += ipComponent + (i === ipComponents.length - 1 ? '' : '.');
+    }
+    ipDots[0] = resultString;
+  }
+
+  {
+    let ipComponents = getIpDotBinaryFromIpDot(ipHost).replace(/\./g, '');
+    // let muskLenth = parseInt(ipMust);
+    // ipComponents = ipComponents.substr(0, muskLenth) + padLeft('', ipComponents.length - muskLenth, '0');
+    ipComponents = [ipComponents.substr(0 + 8 * 0, 8), ipComponents.substr(0 + 8 * 1, 8), ipComponents.substr(0 + 8 * 2, 8), ipComponents.substr(0 + 8 * 3, 8)];
+    let resultString = '';
+    for (let i = 0; i < ipComponents.length; i++) {
+      let ipComponent = parseInt(ipComponents[i], 2).toString(10);
+      resultString += ipComponent + (i === ipComponents.length - 1 ? '' : '.');
+    }
+    ipDots[1] = resultString;
+  }
+
+  {
+    let ipComponents = getIpDotBinaryFromIpDot(ipHost).replace(/\./g, '');
+    let muskLenth = parseInt(ipMust);
+    ipComponents = ipComponents.substr(0, muskLenth) + padLeft('', ipComponents.length - muskLenth, '1');
+    ipComponents = [ipComponents.substr(0 + 8 * 0, 8), ipComponents.substr(0 + 8 * 1, 8), ipComponents.substr(0 + 8 * 2, 8), ipComponents.substr(0 + 8 * 3, 8)];
+    let resultString = '';
+    for (let i = 0; i < ipComponents.length; i++) {
+      let ipComponent = parseInt(ipComponents[i], 2).toString(10);
+      resultString += ipComponent + (i === ipComponents.length - 1 ? '' : '.');
+    }
+    ipDots[2] = resultString;
+  }
+
+  if (ipDots[1] === ipDots[0] || ipDots[1] === ipDots[2]) {
+    delete ipDots[1];
+  }
+}
+
+// console.log(padLeft(ip, 32 + 3, ' '));
+console.log('');
+
+for (let i = 0; i < ipDots.length; i++) {
+  let ipDot = ipDots[i];
+  if (ipDot && ipDots.length > 0) {
+    console.log(highlightString(padLeft(ipDot, 32 + 3, ' '), {'start': 0, 'end': 32 + 3, 'color': 'yellow'}));
+    console.log(highlightChar(getIpDotBinaryFromIpDot(ipDot), {'1': 'red'}));
+    console.log(getIpDotPrintFromIpDot(ipDot));
+    console.log(getIpHexPrintFromIpDot(ipDot));
+    console.log(padLeft('0x' + getIpHexPrintFromIpDot(ipDot).replace(/ /g, ''), 32 + 3, ' '));
+    console.log('');
+  }
+}
