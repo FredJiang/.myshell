@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+which xpath > /dev/null
+if [ $? -ne 0 ]; then
+    echo 'xpath not exist'
+    echo 'ubuntu'
+    echo 'sudo apt-get update -y && sudo apt-get install -y libxml-xpath-perl'
+    exit 1
+fi
+
+which xmlstarlet > /dev/null
+if [ $? -ne 0 ]; then
+    echo 'xmlstarlet not exist'
+    echo 'ubuntu'
+    echo 'sudo apt-get update -y && sudo apt-get install -y xmlstarlet'
+    exit 1
+fi
+
+case "$OSTYPE" in
+  solaris*)
+    exit 1
+    ;;
+  darwin*)
+    build_finalName=$(xpath pom.xml '/project/profiles/profile/activation[contains(activeByDefault, 'true')]/../build/finalName/text()'         2>/dev/null)
+    ;;
+  linux*)
+    build_finalName=$(xpath -e      '/project/profiles/profile/activation[contains(activeByDefault, 'true')]/../build/finalName/text()' pom.xml 2>/dev/null)
+    ;;
+  bsd*)
+    exit 1
+    ;;
+  msys*)
+    exit 1
+     ;;
+  *)
+    exit 1
+    ;;
+esac
+
+echo ${build_finalName}

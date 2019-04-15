@@ -35,7 +35,9 @@ do
                         }
                     }' \
                 | ack --flush --passthru --color --color-match=red    'diff ' \
-                | ack --flush --passthru --color --color-match=yellow 'Only in'
+                | ack --flush --passthru --color --color-match=yellow 'Only in' \
+                | ack --flush --passthru --color --color-match=red    '< ' \
+                | ack --flush --passthru --color --color-match=yellow '> '
         echo '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
         echo ''
     fi
