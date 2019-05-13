@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
+
+echoCo         "/usr/local/bin/gem update"
+                /usr/local/bin/gem update
+echoCo         "/usr/local/bin/gem cleanup --dryrun"
+                /usr/local/bin/gem cleanup --dryrun
+# echoCo "sudo  /usr/bin/gem       update"
+#         sudo  /usr/bin/gem       update
+# echoCo "sudo  /usr/bin/gem       cleanup --dryrun"
+#         sudo  /usr/bin/gem       cleanup --dryrun
+
+gempaths1=($(/usr/bin/gem       env 'GEM_PATHS' | tr ':' '\n' | sort -u | tr '\n' ' '))
+gempaths2=($(/usr/local/bin/gem env 'GEM_PATHS' | tr ':' '\n' | sort -u | tr '\n' ' '))
+gempathsAll=("${gempaths1[@]}" "${gempaths2[@]}")
+gempathsAll=("${gempathsAll[@]}" "/usr/local/opt/ruby")
+gempathsAll=($(echo "${gempathsAll[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+for gempath in ${gempathsAll[@]};
+do
+    if [ -d "${gempath}" ]
+    then
+        if [ -d "${gempath}/bin" ]
+        then
+            echoCo "${gempath}/bin"
+          # ls "${gempath}/bin" | sort | sed 's/^/        /' | ack --flush --passthru --color --color-match=red 'gem'
+            ls "${gempath}/bin" | sort | sed 's/^/        /' | grep --color -i 'gem'
+            echo ""
+            # ${gempath}/bin/gem cleanup
+        fi
+
+        if [ -d "${gempath}/gems" ]
+        then
+            echoCo "${gempath}/gems"
+          # ls "${gempath}/gems" | sort | sed 's/^/        /' | ack --flush --passthru --color --color-match=red 'gem'
+            ls "${gempath}/gems" | sort | sed 's/^/        /' | grep --color -i 'gem'
+            echo ""
+        fi
+    fi
+done

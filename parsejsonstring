@@ -1,13 +1,30 @@
 #!/usr/bin/env node
 
 const stringify = require('json-stable-stringify');
+const { execSync } = require('child_process');
+const fs = require('fs');
 
-let jsonString = process.argv[2];
-// jsonString = '{"a":"a"}';
+const tmpFilePath = '/tmp/myshell.' + process.argv[1].split('/').pop();
+
+const getDataFromFirstArgvOrPbpaste = (process) => {
+  let finalParam = '';
+  if (process.argv.length === 2) {
+    finalParam = execSync(`pbpaste`).toString();
+  } else {
+    finalParam = process.argv[2];
+  }
+  return finalParam;
+};
+
+let jsonString = getDataFromFirstArgvOrPbpaste(process);
+// jsonString = '{"code": 0, "message": "", "result": {"domains": ["https://user.sdk.perfectworld.com", "https://user.sdk.haitun.com"], "loginTypes": ["GUEST", "FACEBOOK", "GOOGLEPLAY"], "languages": ["zh", "zh-TW"], "privacyItems": [{"content": "登陆即表示同意"}, {"content": "《用户协议》", "type": "protocol"}, {"content": "和"}, {"content": "《隐私政策》", "type": "privacy"} ] } }';
+// 
+
+// parsejsonstring
 
 // https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
 
-let Reset = '\x1b[0m';
+// let Reset = '\x1b[0m';
 // let Bright = '\x1b[1m';
 // let Dim = '\x1b[2m';
 // let Underscore = '\x1b[4m';
@@ -17,7 +34,7 @@ let Reset = '\x1b[0m';
 
 // let FgBlack = '\x1b[30m';
 // let FgRed = '\x1b[31m';
-let FgGreen = '\x1b[32m';
+// let FgGreen = '\x1b[32m';
 // let FgYellow = '\x1b[33m';
 // let FgBlue = '\x1b[34m';
 // let FgMagenta = '\x1b[35m';
@@ -34,9 +51,25 @@ let FgGreen = '\x1b[32m';
 // let BgWhite = '\x1b[47m';
 
 let jsonData = JSON.parse(jsonString);
+if (typeof jsonData === 'string' || jsonData instanceof String) {
+  jsonData = JSON.parse(jsonData);
+}
 
-console.log(FgGreen);
-// console.log(JSON.stringify(jsonData, null, '  '));
-// console.log(JSON.stringify(jsonData, Object.keys(jsonData).sort(), '  ')); // 多层嵌套的，有问题
-console.log(stringify(jsonData, { space: '  ' }));
-console.log(Reset);
+let stringifyResult = stringify(jsonData, { space: '  ' });
+stringifyResult = `'use strict'
+let tmp =
+${stringifyResult}
+console.log(tmp)
+`;
+
+// console.log(FgGreen);
+fs.writeFileSync(tmpFilePath, stringifyResult);
+execSync(`eslint --fix --config $HOME/.eslintrc_parsejsonstring.js ${tmpFilePath}`).toString();
+stringifyResult = fs.readFileSync(tmpFilePath).toString();
+let stringifyResultLines = stringifyResult.split('\n');
+stringifyResultLines.shift();
+stringifyResultLines.shift();
+stringifyResultLines.pop();
+stringifyResultLines.pop();
+console.log(stringifyResultLines.join('\n'));
+// console.log(Reset);

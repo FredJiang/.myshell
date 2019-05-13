@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+const { execSync } = require('child_process');
+
+const getDataFromFirstArgvOrPbpaste = (process) => {
+  let finalParam = '';
+  if (process.argv.length === 2) {
+    finalParam = execSync(`pbpaste`).toString();
+  } else {
+    finalParam = process.argv[2];
+  }
+  return finalParam;
+};
+
+let urlSource = getDataFromFirstArgvOrPbpaste(process);
+
+console.log(encodeURIComponent(urlSource));

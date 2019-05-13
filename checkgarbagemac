@@ -1,0 +1,25 @@
+#!/bin/bash
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
+
+du -sh ${HOME}/Library/Developer/CoreSimulator/Devices/*        | sort -hr | head -n 5 && echo ''
+du -sh ${HOME}/Library/Developer/Xcode/Archives/*               | sort -hr | head -n 5 && echo ''
+du -sh ${HOME}/Library/Developer/Xcode/DerivedData/*            | sort -hr | head -n 5 && echo ''
+du -sh ${HOME}/Library/Developer/Xcode/iOS\ Device\ Logs/*      | sort -hr | head -n 5 && echo ''
+du -sh ${HOME}/Library/Developer/Xcode/iOS\ DeviceSupport/*     | sort -hr | head -n 5 && echo ''
+du -sh ${HOME}/Library/Developer/Xcode/Products/*               | sort -hr | head -n 5 && echo ''
+du -sh ${HOME}/Library/Group\ Containers/*                      | sort -hr | head -n 5 && echo ''
+du -sh ${HOME}/Library/MobileDevice/Provisioning\ Profiles/*    | sort -hr | head -n 5 && echo ''
+# du -sh /Applications/Xcode.app/Contents/Developer/Platforms/* | sort -hr | head -n 5 && echo ''
+
+# https://www.imore.com/how-reclaim-disk-space-system-macos-high-sierra
+
+echoCo 'tmutil listlocalsnapshots /'
+        tmutil listlocalsnapshots /                                                    && echo ''
+#                        com.apple.TimeMachine.2019-05-07-170128
+echoCo 'try this: tmutil deletelocalsnapshots "2019-05-07-170128"'
+
+echoCo 'try this: sudo du -sh /private/var/root'
+echoCo 'try this: sudo du -sh /*                | sort -rh'

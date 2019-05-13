@@ -1,3 +1,3 @@
 #!/bin/sh
 
-pbpaste | jq
+pbpaste | jq --sort-keys

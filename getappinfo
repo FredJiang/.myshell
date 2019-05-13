@@ -1,0 +1,142 @@
+#!/bin/bash
+
+
+if [ $# -eq 0 ]
+then
+    echo "No arguments supplied"
+    exit 1
+fi
+
+
+echo -e "apps are:\n    $@\n"
+
+
+IFS=' ' read -r -a filterNamesInFind <<< $(echo $@)
+unset IFS
+# filterNamesInFind=(
+#     "bundle"
+#     "gem"
+#     "ruby"
+# )
+
+
+# useStart="*"
+useStart=""
+filterNamesCombinedInFind="-iname \"${useStart}${filterNamesInFind[0]}${useStart}\""
+for index in "${!filterNamesInFind[@]}"
+do
+    if [ ! ${index} -eq 0 ]
+    then
+        filterNamesCombinedInFind="${filterNamesCombinedInFind} -o -iname \"${useStart}${filterNamesInFind[index]}${useStart}\""
+    fi
+done
+echo -e "filterNamesCombinedInFind is:\n    ${filterNamesCombinedInFind}\n"
+
+
+filterFoldersInFind=(
+    "/usr/bin"
+    "/usr/lib"
+    "/usr/libexec"
+    "/usr/local"
+    "/usr/local/bin"
+    "/usr/local/Cellar"
+    "/usr/local/Homebrew"
+    "/usr/local/lib"
+    "/usr/local/opt"
+    "/usr/local/sbin"
+    "/usr/sbin"
+)
+gempaths1=($(/usr/bin/gem       env 'GEM_PATHS' | tr ':' '\n' | sort -u | tr '\n' ' '))
+gempaths2=($(/usr/local/bin/gem env 'GEM_PATHS' | tr ':' '\n' | sort -u | tr '\n' ' '))
+gempathsAll=("${gempaths1[@]}" "${gempaths2[@]}")
+for gempath in ${gempathsAll[@]};
+do
+    arrayItemTemp=("${gempath}/bin" "${gempath}/gems")
+    filterFoldersInFind=("${filterFoldersInFind[@]}" "${arrayItemTemp[@]}")
+done
+for filterName in ${filterNamesInFind[@]};
+do
+    arrayItemTemp=("/usr/local/opt/${filterName}/bin")
+    filterFoldersInFind=("${filterFoldersInFind[@]}" "${arrayItemTemp[@]}")
+    arrayItemTemp=("${HOME}/.${filterName}")
+    filterFoldersInFind=("${filterFoldersInFind[@]}" "${arrayItemTemp[@]}")
+    arrayItemTemp=("${HOME}/.${filterName}/bin")
+    filterFoldersInFind=("${filterFoldersInFind[@]}" "${arrayItemTemp[@]}")
+done
+filterFoldersInFind=($(echo "${filterFoldersInFind[@]}" | tr ' ' '\n' | rev | sort -u | rev | tr '\n' ' '))
+echo "filterFoldersInFind are:"
+for folder in ${filterFoldersInFind[@]};
+do
+    printf "    %100s\n" "${folder}"
+done
+echo ""
+
+
+# set -o xtrace
+filenames=()
+for folder in ${filterFoldersInFind[@]};
+do
+    if [ -d ${folder} -o -f ${folder} ]
+    then
+        findCommand="find ${folder} \( "${filterNamesCombinedInFind}" \) -mindepth 1 -maxdepth 1 | sort"
+        # echo "findCommand ${findCommand}"
+        arrayItemTemp=$(bash -c "${findCommand}")
+        filenames=("${filenames[@]}" "${arrayItemTemp[@]}")
+    fi
+done
+
+
+executables=()
+filenames=($(echo "${filenames[@]}" | tr ' ' '\n' | rev | sort -u | rev | tr '\n' ' '))
+echo -e "files are:"
+for filename in ${filenames[@]};
+do
+    if [ -L ${filename} ]
+    then
+        IFS=' ' read -r -a linkArray <<< $(ls -ld ${filename} | rev | cut -d " " -f 1-3 | rev)
+        unset IFS
+        printf "    %50s -> %s\n" "${linkArray[0]}" "${linkArray[2]}"
+    else
+        printf "    %50s\n" "${filename}"
+    fi
+
+    if [ -f ${filename} -a -x ${filename} ]
+    then
+        if file ${filename} | grep -i -q 'executable'
+        then
+            executablesTemp=(${filename})
+            executables=("${executables[@]}" "${executablesTemp[@]}")
+        fi
+    fi
+done
+
+
+echo -e "\nversions are:"
+executables=($(echo "${executables[@]}" | tr ' ' '\n' | rev |sort -u | rev | tr '\n' ' '))
+for executable in ${executables[@]};
+do
+    printf "    %50s %s\n" "${executable}" "$(${executable} --version 2>&1 | egrep -i "(\d+\.)+\d+" | head -n 1)"
+done
+
+
+grepFiltersInList="${filterNamesInFind[0]}"
+for index in "${!filterNamesInFind[@]}"
+do
+    if [ ! ${index} -eq 0 ]
+    then
+        grepFiltersInList="${grepFiltersInList}|${filterNamesInFind[index]}"
+    fi
+done
+echo -e "\ngrepFiltersInList is:\n    ${grepFiltersInList}\n"
+
+echo -e "list are:"
+echo -e "    /usr/bin/gem        list"
+             /usr/bin/gem        list                                                               | grep -i -E "${grepFiltersInList}" | sed 's/^/        /'
+echo -e "    /usr/local/bin/brew list"
+             /usr/local/bin/brew list                                                               | grep -i -E "${grepFiltersInList}" | sed 's/^/        /'
+echo -e "    /usr/local/bin/gem  list"
+             /usr/local/bin/gem  list                                                               | grep -i -E "${grepFiltersInList}" | sed 's/^/        /'
+echo -e "    ls ${HOME}/.nvm/versions/node/$(node --version)/lib/node_modules"
+             ls ${HOME}/.nvm/versions/node/$(node --version)/lib/node_modules | sort                | grep -i -E "${grepFiltersInList}" | sed 's/^/        /'
+# echo -e "  npm                 list --global --depth=0"
+#            npm                 list --global --depth=0                                            | grep -i -E "${grepFiltersInList}" | sed 's/^/        /'

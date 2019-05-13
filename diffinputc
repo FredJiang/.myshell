@@ -1,0 +1,3 @@
+#!/bin/bash
+
+icdiff --line-numbers /tmp/myshell.diffinputl /tmp/myshell.diffinputr

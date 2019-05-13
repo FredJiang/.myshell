@@ -7,6 +7,7 @@ const asyncawaitAwait = require('asyncawait/await');
 const querystring = require('querystring');
 const request = require('request');
 const { exec } = require('child_process');
+const os = require('os');
 
 let myRequestPromise = (reqAndRes) => {
   return new Promise((resolve, reject) => {
@@ -110,12 +111,23 @@ const funcs = asyncawaitAsync((reqAndResList) => {
 
 const protocolHostPort = 'https://www.shanbay.com';
 
+let cookiesFromCookieInspector = require(os.homedir() + `/Downloads/shanbaycookie.json`);
+
+let cookieItems = [];
+
+for (let cookieItem of cookiesFromCookieInspector) {
+  cookieItems.push(`${cookieItem.name}=${cookieItem.value};`);
+}
+let cookieString = cookieItems.join(' ');
+console.log('cookieString', cookieString, '\n');
+
 const commonHeader = {
   'accept'           : 'application/json, text/javascript, */*; q=0.01',
   'accept-encoding'  : 'gzip, deflate, br',
   'accept-language'  : 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
   'cache-control'    : 'no-cache',
-  'cookie'           : '_ga=GA1.2.333260953.1540372207; csrftoken=tr9h8aGeHUTCmYJhQaNqxBQ8mrNDHKGQ; userid=39440353; __utmc=183787513; __utmz=183787513.1554288664.50.3.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); language_code=zh-CN; __utma=183787513.333260953.1540372207.1554306976.1554310218.52; __utmt=1; auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjI3MDEzMDEwOCIsImRldmljZSI6MCwiaXNfc3RhZmYiOmZhbHNlLCJpZCI6Mzk0NDAzNTMsImV4cCI6MTU1NTE3NTY4OH0.Y-I6VOK-p7f4ct6aYAAnAt4mo2t2xjbJ-uR2VZTUty0; __utmb=183787513.10.10.1554310218',
+  // 'cookie'           : '_ga=GA1.2.333260953.1540372207; csrftoken=tr9h8aGeHUTCmYJhQaNqxBQ8mrNDHKGQ; userid=39440353; __utmc=183787513; __utmz=183787513.1554288664.50.3.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); language_code=zh-CN; __utma=183787513.333260953.1540372207.1554306976.1554310218.52; __utmt=1; auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjI3MDEzMDEwOCIsImRldmljZSI6MCwiaXNfc3RhZmYiOmZhbHNlLCJpZCI6Mzk0NDAzNTMsImV4cCI6MTU1NTE3NTY4OH0.Y-I6VOK-p7f4ct6aYAAnAt4mo2t2xjbJ-uR2VZTUty0; __utmb=183787513.10.10.1554310218',
+  'cookie'           : cookieString,
   'pragma'           : 'no-cache',
   'referer'          : 'https://www.shanbay.com/',
   'user-agent'       : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
@@ -139,13 +151,6 @@ let reqAndResList = [
           _.set(reqAndResList, '1.req.id', _.get(body, 'data.id'));
         }
 
-        // exec(`open ${_.get(body, 'data.url')}`, (err, stdout, stderr) => {
-        //   console.log(`err: ${err}`);
-        //   console.log(`stdout: ${stdout}`);
-        //   console.log(`stderr: ${stderr}`);
-        // });
-        //
-
         asyncawaitAwait(showAlert(_.get(reqAndResList, '0.req.word'), `/${_.get(body, 'data.pronunciations.us')}/\n${_.get(body, 'data.definition')}`));
 
         resolve();
@@ -164,7 +169,6 @@ let reqAndResList = [
       'content_type' : 'vocabulary'
     }
   }
-
 ];
 
 if (process.argv.length === 3) {

@@ -1,15 +1,23 @@
 #!/usr/bin/env node
 
-let ip = '127.0.0.1';
-// let ip = '127.0.0.1/32';
-// let ip = '0x7f.00.00.01';
-// let ip = '01111111.00000000.00000000.00000001';
-
-if (process.argv.length === 3) {
-  ip = process.argv[2];
-}
-
 const chalk = require('chalk');
+const { execSync } = require('child_process');
+
+const getDataFromFirstArgvOrPbpaste = (process) => {
+  let finalParam = '';
+  if (process.argv.length === 2) {
+    finalParam = execSync(`pbpaste`).toString();
+  } else {
+    finalParam = process.argv[2];
+  }
+  return finalParam;
+};
+
+let ip = getDataFromFirstArgvOrPbpaste(process);
+// ip = '127.0.0.1';
+// ip = '127.0.0.1/32';
+// ip = '0x7f.00.00.01';
+// ip = '01111111.00000000.00000000.00000001';
 
 const padLeft = (content, length, padding) => {
   return (new Array(length - content.length + 1).join(padding) + content);

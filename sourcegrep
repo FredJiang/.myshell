@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+then
+    echo "No arguments supplied"
+    exit 1
+fi
+
+filter=$@
+
+filenamesUser=$(find ${HOME} \( -name "*sh*" -o -name "*profile*" \) ! -name "*history*" -mindepth 1 -maxdepth 1 -type f | sort)
+
+filenamesShare=(
+    "${HOME}/.bash_profile"
+    "${HOME}/.bashrc"
+    "${HOME}/.profile"
+    "${HOME}/.zlogin"
+    "${HOME}/.zshrc"
+    "/etc/bashrc"
+    "/etc/env.d/"
+    "/etc/environment"
+    "/etc/profile"
+    "/etc/profile.d/"
+)
+
+filenamesMerge=("${filenamesUser[@]}" "${filenamesShare[@]}")
+
+# https://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
+# IFS=$'\n' sorted=($(sort <<<"${filenames[@]}"))
+# unset IFS
+
+# https://stackoverflow.com/questions/13648410/how-can-i-get-unique-values-from-an-array-in-bash
+filenames=($(echo "${filenamesMerge[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+
+for filename in ${filenames[@]};
+do
+    echo ${filename}
+    if [ -f ${filename} ]
+    then
+        grep -n -i -v "^#"        "${filename}"   | grep -i "${filter}" | sed 's/^/    /' | grep --color -i "${filter}"
+    fi
+
+    if [ -d ${filename} ]
+    then
+        grep -n -i -e "${filter}" "${filename}/*"                       | sed 's/^/    /' | grep --color -i "${filter}"
+    fi
+done

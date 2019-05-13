@@ -1,5 +1,19 @@
 #!/bin/bash
 
-# brew update && brew upgrade && brew cleanup && brew cask cleanup && brew doctor
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
 
-  brew update && brew upgrade && brew cleanup &&                      brew doctor
+# export HOMEBREW_VERBOSE=1
+
+set -e
+# set -o xtrace
+
+echoCo 'brew update -v'
+        brew update -v
+echoCo 'brew upgrade'
+        brew upgrade
+echoCo 'brew cleanup'
+        brew cleanup
+echoCo 'brew doctor'
+        brew doctor
