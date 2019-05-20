@@ -16,8 +16,8 @@ for var in "${@}"
 do
     if [ ! "${1}" = "${var}" ]; then
         echo '↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧↧'
-        # echoCo "icdiff --line-numbers  ${1}   ${var}"
-                  icdiff --line-numbers "${1}" "${var}"
+        # echoCo "icdiff --recursive --line-numbers  ${1}   ${var}"
+                  icdiff --recursive --line-numbers "${1}" "${var}"
         echo '↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥↥'
         echo ''
     fi

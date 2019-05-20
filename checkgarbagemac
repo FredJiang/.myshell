@@ -21,5 +21,9 @@ echoCo 'tmutil listlocalsnapshots /'
 #                        com.apple.TimeMachine.2019-05-07-170128
 echoCo 'try this: tmutil deletelocalsnapshots "2019-05-07-170128"'
 
+echoCo 'try this: sudo du -sh /var/root'
+
+echoCo 'try this: sudo du -sh /private/var/vm'
+echoCo 'try this: sudo du -sh /private/var/log'
 echoCo 'try this: sudo du -sh /private/var/root'
-echoCo 'try this: sudo du -sh /*                | sort -rh'
+echoCo 'try this: sudo du -sh /*                 | sort -rh'
