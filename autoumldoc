@@ -1,0 +1,79 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]
+  then
+    echo "arguments not enough"
+    exit 1
+fi
+
+autoumldocKey=$1
+
+autoumldocMerge="/tmp/$(basename "$0")_merge_$(date +%Y%m%d)"
+autoumldocMergeSort="${autoumldocMerge}_sort"
+
+
+
+/usr/local/bin/ag --ignore vendor --ignore node_modules --ignore Pods --ignore target --nocolor --nogroup "//[ \t]{1,}autoumldoc[ \t]{1,}${autoumldocKey}" | \
+sed -e 's/[ \t]*\/\//\/\//' > "${autoumldocMerge}"
+
+
+
+
+
+cat "${autoumldocMerge}" | \
+awk '
+BEGIN {
+    RS = "\r\n|\n";
+    OFS=FS="//[ \t]*autoumldoc[ \t]*";
+}
+{
+    printf("%s%s%s%s\n", $2, " /\x27 ", $1, " \x27/");
+}
+END {
+}' | \
+awk '
+{
+    indexOrigin=$2;
+    $2=sprintf("%14s", $2);
+    for(i=4; i<=NF; i++) {
+      gsub("/\x27", "/\x27 " indexOrigin, $i);
+    }
+    printf("%s\n", $0);
+}' | \
+sort > "${autoumldocMergeSort}"
+
+
+echo "cat ${autoumldocMerge}"
+      cat ${autoumldocMerge}
+echo ""
+echo "cat ${autoumldocMergeSort}"
+      cat ${autoumldocMergeSort}
+echo ""
+
+
+keyArray=($(cat "${autoumldocMergeSort}" | cut -d' ' -f1 | uniq))
+for key in ${keyArray[@]};
+do
+    autoumldocMergeSortKey="${autoumldocMergeSort}_${key}.plantuml"
+    echo "@startuml" >  "${autoumldocMergeSortKey}"
+    echo "start"     >> "${autoumldocMergeSortKey}"
+    cat  "${autoumldocMergeSort}" | \
+        awk '
+        {
+          for(i=1; i<=2; i++) {
+            $i="";
+          }
+          print $0;
+        }' | \
+        awk -F "/\x27" '
+        {
+          gsub(":[ \t]{1,}", " ", $2)
+          printf("%-60s /\x27%s\n", $1, $2);
+        }' >> "${autoumldocMergeSortKey}"
+    echo "end"       >> "${autoumldocMergeSortKey}"
+    echo "@enduml"   >> "${autoumldocMergeSortKey}"
+    echo "open -a Atom ${autoumldocMergeSortKey}"
+    echo "cat          ${autoumldocMergeSortKey}"
+          cat          ${autoumldocMergeSortKey}
+    echo ""
+done

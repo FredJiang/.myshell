@@ -1,3 +1,6 @@
 #!/bin/sh
 
-find /Volumes/MAC/百度云同步盘/blog/blog_FredJiang/source/_posts -type f -name "*md" -exec grep -i -e "tags.*[\[,\, ]$1" -e "tags.*$1[\, ,\]]" {} + | sed -e 's/^/open /' | sed -e 's/\:tags\: \[/\  #\:tags\: \[/g'
+find /Users/Fred/blog/blog_FredJiang/source/_posts \
+-type f \
+-name "*md" \
+-exec grep -i -e "tags.*[\[,\, ]$1" -e "tags.*$1[\, ,\]]" {} + | sed -e 's/^/open /' | sed -e 's/\:tags\: \[/\  #\:tags\: \[/g'

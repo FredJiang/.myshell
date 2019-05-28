@@ -13,3 +13,9 @@ if [ $? -eq 0 ]; then
 else
     echoEr 'format failed'
 fi
+
+# emacs 
+# M-| ls
+# M-| xmllint --format pom.xml
+
+# M-| xmlpretty        pom.xml

@@ -1,0 +1,93 @@
+#!/bin/bash
+
+if [ $# -lt 3 ]
+  then
+    echo "arguments not enough"
+    exit 1
+fi
+
+autoumldocKey=$1
+
+autoumldocMerge="/tmp/$(basename "$0")_merge_$(date +%Y%m%d)"
+autoumldocMergeSort="${autoumldocMerge}_sort"
+autoumldocMergeSortAdd="${autoumldocMerge}_sort_add"
+autoumldocMergeSortAddCommend="${autoumldocMerge}_sort_add_commend"
+
+/usr/local/bin/ag --ignore vendor --ignore node_modules --ignore Pods --ignore target --nocolor --nogroup "//[ \t]{1,}autoumldoc[ \t]{1,}${autoumldocKey}" | \
+sed -e 's/[ \t]*\/\//\/\//' > "${autoumldocMerge}"
+
+autoumldocKey=$1
+startNumber=$2
+addNumber=$3
+
+cat "${autoumldocMerge}" | \
+awk '
+BEGIN {
+    RS = "\r\n|\n";
+    OFS=FS="//[ \t]*autoumldoc[ \t]*";
+}
+{
+    printf("%s%s%s%s\n", $2, " /\x27 ", $1, " \x27/");
+}
+END {
+}' | \
+awk '
+{
+    $2=sprintf("%14s", $2);
+    printf("%s\n", $0);
+}' | \
+sort -r > "${autoumldocMergeSort}"
+
+
+cat "${autoumldocMergeSort}" | \
+awk -v autoumldocKey="${autoumldocKey}" -v startNumber="${startNumber}" -v addNumber="${addNumber}" '{
+    numberAdded=$2
+    if($2 >= startNumber) {
+        numberAdded=$2+addNumber
+        sedCommand=sprintf("sed -i \x27\x27 -e \x27s/[ \\t]* %s[ \\t]* %s [ \\t]*/ %s %s /\x27", autoumldocKey, $2, autoumldocKey, numberAdded);
+        $1=""
+        $2=sedCommand
+        printf("%s\n", $0);
+    }
+}' > ${autoumldocMergeSortAdd}
+
+
+echo '#!/bin/bash' >  ${autoumldocMergeSortAddCommend}
+echo ''            >> ${autoumldocMergeSortAddCommend}
+echo "cd $(pwd)"   >> ${autoumldocMergeSortAddCommend}
+echo ''            >> ${autoumldocMergeSortAddCommend}
+chmod +x              ${autoumldocMergeSortAddCommend}
+
+cat "${autoumldocMergeSortAdd}" | \
+awk '
+BEGIN {
+    OFS=FS="/\x27";
+}
+{
+    lineNumber=substr($3, index($3, ":"));
+    gsub(":", "", lineNumber);
+
+    gsub("\x27/", "", $3)
+    gsub(":[0-9]{1,}:", "", $3)
+
+    printf("%s/\x27%s # %s %s\n", $1, $3, lineNumber, $2);
+}' >> ${autoumldocMergeSortAddCommend}
+
+
+echo "cat ${autoumldocMerge}"
+      cat ${autoumldocMerge}
+echo ""
+echo "cat ${autoumldocMergeSort}"
+      cat ${autoumldocMergeSort}
+echo ""
+echo "cat ${autoumldocMergeSortAdd}"
+      cat ${autoumldocMergeSortAdd}
+echo ""
+echo "cat ${autoumldocMergeSortAddCommend}"
+      cat ${autoumldocMergeSortAddCommend}
+echo ""
+
+
+echo ""
+echo "!!! Becareful, using git to backup your file before runing these command"
+echo "/bin/bash ${autoumldocMergeSortAddCommend}"

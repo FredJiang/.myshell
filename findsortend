@@ -1,12 +1,12 @@
 #!/bin/bash
 
-output=$(ls $@ | sed 's/ /=/g' | rev | sort | rev)
-
-
-
-
-
-
+output=$(
+find $@ -type f \
+! -path "*/\.git/*" \
+! -path "*/components/*" \
+! -path "*/node_modules/*" \
+! -path "*/target/*" \
+| sed 's/ /=/g' | rev | sort | rev)
 
 maxLength=0;
 for key in ${output};
