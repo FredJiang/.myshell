@@ -14,8 +14,11 @@ else
     echoEr 'format failed'
 fi
 
-# emacs 
-# M-| ls
-# M-| xmllint --format pom.xml
+# emacs: 1
+# C-x h C-u M-| xmllint --format - RET
 
-# M-| xmlpretty        pom.xml
+# emacs: 2
+# M-| ls
+# M-| xmlpretty pom.xml
+# M-x revert-buffer
+# C-x h M-x indent-region

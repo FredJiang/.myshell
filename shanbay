@@ -113,7 +113,7 @@ const funcs = asyncawaitAsync((reqAndResList) => {
 
 const protocolHostPort = 'https://www.shanbay.com';
 
-let cookiesFromCookieInspector = require(os.homedir() + `/Downloads/shanbaycookie.json`);
+let cookiesFromCookieInspector = require(os.homedir() + `/Downloads/export.json`);
 
 let cookieItems = [];
 
