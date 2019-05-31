@@ -9,5 +9,3 @@ run \
 -w /tmp \
 tensorflow/tensorflow:1.13.1 \
 python "$@"
-
-# reg-mirror.qiniu.com/tensorflow/tensorflow:1.13.1 \

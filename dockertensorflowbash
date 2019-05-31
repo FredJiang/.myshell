@@ -1,0 +1,11 @@
+#!/bin/sh
+
+docker \
+run \
+-it \
+--rm \
+-u $(id -u):$(id -g) \
+-v ${PWD}:/tmp \
+-w /tmp \
+tensorflow/tensorflow:1.13.1 \
+bash
