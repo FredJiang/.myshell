@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+
+           /usr/local/bin/pip          --version
+           /usr/local/bin/pip     list --outdated --format=freeze
+         # /usr/local/bin/pip     list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip    install --upgrade --user
+# pip_cmd="/usr/local/bin/pip"    && pip_upgrade_outdated --pip_cmd "${pip_cmd}"
+echo "------------------------------------------------------------------------"
+
+           /usr/local/bin/pip2         --version
+           /usr/local/bin/pip2    list --outdated --format=freeze
+         # /usr/local/bin/pip2    list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip2   install --upgrade --user
+# pip_cmd="/usr/local/bin/pip2"   && pip_upgrade_outdated --pip_cmd "${pip_cmd}"
+echo "------------------------------------------------------------------------"
+
+           /usr/local/bin/pip2.7       --version
+           /usr/local/bin/pip2.7  list --outdated --format=freeze
+         # /usr/local/bin/pip2.7  list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip2.7 install --upgrade --user
+# pip_cmd="/usr/local/bin/pip2.7" && pip_upgrade_outdated --pip_cmd "${pip_cmd}"
+echo "------------------------------------------------------------------------"
+
+           /usr/local/bin/pip3         --version
+           /usr/local/bin/pip3    list --outdated --format=freeze
+         # /usr/local/bin/pip3    list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip3   install --upgrade --user
+# pip_cmd="/usr/local/bin/pip3"   && pip_upgrade_outdated --pip_cmd "${pip_cmd}"
+echo "------------------------------------------------------------------------"
+
+           /usr/local/bin/pip3.7       --version
+           /usr/local/bin/pip3.7  list --outdated --format=freeze
+         # /usr/local/bin/pip3.7  list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip3.7 install --upgrade --user
+# pip_cmd="/usr/local/bin/pip3.7" && pip_upgrade_outdated --pip_cmd "${pip_cmd}"
+echo "------------------------------------------------------------------------"
