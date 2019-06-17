@@ -6,22 +6,20 @@ set -o xtrace
 
 args="$@"
 
+
+
               /usr/local/bin/pip    --version
 /bin/bash -c "/usr/local/bin/pip    ${args}"
 echo         "------------------------------------------------------------------------"
+
+
 
               /usr/local/bin/pip2   --version
 /bin/bash -c "/usr/local/bin/pip2   ${args}"
 echo         "------------------------------------------------------------------------"
 
-              /usr/local/bin/pip2.7 --version
-/bin/bash -c "/usr/local/bin/pip2.7 ${args}"
-echo         "------------------------------------------------------------------------"
+
 
               /usr/local/bin/pip3   --version
 /bin/bash -c "/usr/local/bin/pip3   ${args}"
-echo         "------------------------------------------------------------------------"
-
-              /usr/local/bin/pip3.7 --version
-/bin/bash -c "/usr/local/bin/pip3.7 ${args}"
 echo         "------------------------------------------------------------------------"
