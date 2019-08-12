@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# xml        c14n --without-comments                           "$@" | grep -v "^\s*$" | ccat
+# xmlstarlet c14n --without-comments                           "$@" | grep -v "^\s*$" | ccat
+
+# http://api.html-tidy.org/
+# http://api.html-tidy.org/tidy/quickref_next.html
+tidy -quiet -asxml -xml -indent -wrap 1024 --hide-comments 1 "$@" | ccat

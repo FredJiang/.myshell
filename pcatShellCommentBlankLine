@@ -1,0 +1,5 @@
+#!/bin/sh
+
+grepIgnoreShellCommentBlankLine $@ > /tmp/grepcompcat.sh
+
+pcat /tmp/grepcomfcat.sh

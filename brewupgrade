@@ -17,3 +17,5 @@ echoCo 'brew cleanup'
         brew cleanup
 echoCo 'brew doctor'
         brew doctor
+
+echo 'cd "$(brew --repo)" && git prune && git gc'

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -o xtrace
+
+args="$@"
+
+
+
+ls /Library/Ruby/Gems/2.3.0/gems | grep ${args}
+echo         "------------------------------------------------------------------------"
+
+
+
+ls /System/Library/Frameworks/Ruby.framework/Versions/2.3/usr/lib/ruby/gems/2.3.0/gems | grep ${args}
+echo         "------------------------------------------------------------------------"
+
+
+
+ls /usr/local/Cellar/ruby/2.6.3/lib/ruby/gems/2.6.0/gems | grep ${args}
+echo         "------------------------------------------------------------------------"
+
+
+
+ls /usr/local/lib/ruby/gems/2.6.0/gems | grep ${args}
+echo         "------------------------------------------------------------------------"

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+function echoCo {
+    echo -e "\033[32m$@\033[0m"
+}
+
+set -e
+
+gitbranchOrigin=$(git branch | grep '\*' | cut -c 3-)
+
+git branch | cut -c 3- | while read gitbranchTo ; do
+    if [ ${#gitbranchTo} -ge 1 ]
+    then
+        gitbranchFrom=$(git branch | grep '\*' | cut -c 3-)
+        if git status | grep --quiet 'nothing to commit, working tree clean'
+        then
+            echoCo "can checkout from ${gitbranchFrom} to ${gitbranchTo}"
+        else
+            echoCo "can not checkout from ${gitbranchFrom} to ${gitbranchTo}"
+            exit 1
+        fi
+
+        echoCo "git checkout ${gitbranchTo}"
+                git checkout ${gitbranchTo}
+        echoCo "git pull"
+                git pull
+        echo ""
+    fi
+done
+
+git checkout ${gitbranchOrigin}

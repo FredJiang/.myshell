@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # https://stackoverflow.com/questions/13570327/shell-script-deleting-a-substring
 # http://tldp.org/LDP/abs/html/parameter-substitution.html
@@ -6,20 +6,27 @@
 # foo=${foo#$prefix}
 # foo=${foo%$suffix}
 
+function echoCo {
+    echo -e "\033[32m${@}\033[0m"
+}
+
 SESSIONNAME=${1%.yml}
 
 grepResult=$(tmux ls | grep "^$SESSIONNAME:" | cut -d":" -f1)
 
 if [ ${#grepResult} == 0 ]; then
     echo "start $SESSIONNAME"
-    
-    nohup tmuxinator start $SESSIONNAME >/dev/null 2>&1 &
+
+    echoCo "nohup tmuxinator start $SESSIONNAME >/dev/null 2>&1 &"
+            nohup tmuxinator start $SESSIONNAME >/dev/null 2>&1 &
 
     sleep 12
 else
     echo "$SESSIONNAME has started"
 fi
 
-tmux ls
+echoCo "tmux ls"
+        tmux ls
 
-tmux -CC attach -t $SESSIONNAME
+echoCo "tmux -CC attach -t $SESSIONNAME"
+        tmux -CC attach -t $SESSIONNAME

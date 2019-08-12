@@ -1,5 +1,0 @@
-#!/bin/sh
-
-grepcom $@ > /tmp/grepcomfcat.sh
-
-fcat /tmp/grepcomfcat.sh

@@ -2,22 +2,34 @@
 
 output=$(ls $@ | sed 's/ /=/g' | rev | sort | rev)
 
-
-
-
-
-
-
 maxLength=0;
 for key in ${output};
 do
-    if [ ${#key} -gt $maxLength ]
+    # https://unix.stackexchange.com/questions/212372/extract-only-chinese-characters
+    # https://perldoc.perl.org/perluniprops.html
+    allCharCount=$(echo ${key} | wc -m)
+    allCharCount=$((${allCharCount}-1))
+    chineseCharCount=$(echo ${key} | perl -CS -p -e 's/[^\p{Han}\p{East_Asian_Width: Fullwidth}]//g' | wc -m)
+    chineseCharCount=$((${chineseCharCount}+0))
+
+    maxLengthTemp=$((${#key}+${chineseCharCount}))
+    if [ ${maxLengthTemp} -gt $maxLength ]
     then
-        maxLength=${#key}
+        maxLength=${maxLengthTemp}
     fi
 done
 
+
 for key in ${output};
 do
-    printf "%*s\n" "${maxLength}" "${key}"
+    allCharCount=$(echo ${key} | wc -m)
+    allCharCount=$((${allCharCount}-1))
+    chineseCharCount=$(echo ${key} | perl -CS -p -e 's/[^\p{Han}\p{East_Asian_Width: Fullwidth}]//g' | wc -m)
+    chineseCharCount=$((${chineseCharCount}+0))
+
+    alignLength=$((${maxLength}+${chineseCharCount}))
+    printf "\n%*s" "${alignLength}" "${key}"
+    # printf " (a %2s  k %2s  c %2s  m %2s  al %2s)" "${allCharCount}" "${#key}" "${chineseCharCount}" "${maxLength}" "${alignLength}"
 done
+
+echo ""

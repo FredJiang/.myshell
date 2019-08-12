@@ -1,17 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-totalLine=`wc -l $1 | awk '{print $1}'`
-# echo $totalLine
+totalLineCount=`wc -l $1 | awk '{print $1}'`
 
-awk -v totalLine="$totalLine" '
+awk -v totalLineCount="$totalLineCount" '
 BEGIN {
   print "[";
 }
 
 {
   # print typeof(FNR);
-  # print typeof(totalLine);
-  if (FNR<totalLine) {
+  # print typeof(totalLineCount);
+  if (FNR<totalLineCount) {
     printf("  %s,\n", $0);
   } else {
     printf("  %s\n", $0);
@@ -22,5 +21,3 @@ END {
   print "]";
 }
 ' $1
-
-
