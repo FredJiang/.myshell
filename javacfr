@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+# set -o xtrace
+
+tarFileName="cfr-0.146.jar"
+
+if [ ! -f "/opt/${tarFileName}" ]
+then
+    wget "https://www.benf.org/other/cfr/${tarFileName}"
+fi
+
+java -jar /opt/${tarFileName} "$@"

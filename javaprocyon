@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+# set -o xtrace
+
+tarFileName="procyon-decompiler-0.5.36.jar"
+
+if [ ! -f "/opt/${tarFileName}" ]
+then
+    wget "https://bitbucket.org/mstrobel/procyon/downloads/${tarFileName}"
+fi
+
+java -jar /opt/${tarFileName} "$@"
