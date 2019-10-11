@@ -1,0 +1,5 @@
+#!/bin/bash
+
+PID=$1
+
+jinfo ${PID} | grep 'class\.path' | sed 's/ = / = \'$'\n/g' |tr ':' '\n'

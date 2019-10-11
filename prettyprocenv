@@ -1,0 +1,17 @@
+#!/bin/bash
+
+PID=$1
+
+case "$OSTYPE" in
+    darwin*)
+        ps eww -o command ${PID} | tr ' ' '\n'
+        ;;
+    linux*)
+        # to get that output more readable, parse the null character `\0` and replace them by new lines `\n` for readability
+        # (cat /proc/${PID}/environ; echo) | tr '\0' '\n'
+        strings /proc/${PID}/environ
+        ;;
+    *)
+        echoMe "unknown: $OSTYPE"
+        ;;
+esac
