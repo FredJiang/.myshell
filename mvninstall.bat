@@ -1,11 +1,11 @@
 @echo off
 
-call mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout > %Temp%\mvninstalltemp.txt
-set /p artifactId=<%Temp%\mvninstalltemp.txt
-call mvn help:evaluate -Dexpression=project.groupId    -q -DforceStdout > %Temp%\mvninstalltemp.txt
-set /p    groupId=<%Temp%\mvninstalltemp.txt
-call mvn help:evaluate -Dexpression=project.version    -q -DforceStdout > %Temp%\mvninstalltemp.txt
-set /p    version=<%Temp%\mvninstalltemp.txt
+call mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout > %Temp%\mvninstall_temp_agv.txt
+set /p artifactId=<%Temp%\mvninstall_temp_agv.txt
+call mvn help:evaluate -Dexpression=project.groupId    -q -DforceStdout > %Temp%\mvninstall_temp_agv.txt
+set /p    groupId=<%Temp%\mvninstall_temp_agv.txt
+call mvn help:evaluate -Dexpression=project.version    -q -DforceStdout > %Temp%\mvninstall_temp_agv.txt
+set /p    version=<%Temp%\mvninstall_temp_agv.txt
 
 @echo.
 @echo        Temp: %Temp%
