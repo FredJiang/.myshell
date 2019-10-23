@@ -87,6 +87,7 @@ for (let key in agLineMap) {
 
   let outputContent = '';
   outputContent += '#!/bin/bash\n\n';
+  outputContent += '# !!! Becareful, using git to backup your file before runing these command\n\n';
   outputContent += 'set -e\n\n';
   outputContent += `cd ${process.cwd()}\n\n`;
 
@@ -102,6 +103,6 @@ for (let key in agLineMap) {
   console.log(outputContent);
 
   console.log('');
-  console.log('!!! Becareful, using git to backup your file before runing these command');
-  console.log(`/bin/bash ${outputFileName}`);
+  console.log(`open -a Sublime\\ Text ${outputFileName}`);
+  execSync(`open -a Sublime\\ Text ${outputFileName}`);
 }

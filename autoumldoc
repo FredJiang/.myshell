@@ -89,6 +89,7 @@ for (let key in agLineMap) {
   outputContent += '@startuml\n';
   outputContent += 'start\n';
   // 
+  // 
 
   for (let item of agLineMap[key]) {
     // 
@@ -102,6 +103,6 @@ for (let key in agLineMap) {
   console.log(outputContent);
 
   console.log('');
-  // 
   console.log(`open -a Atom ${outputFileName}`);
+  execSync(`open -a Atom ${outputFileName}`);
 }
