@@ -1,93 +1,107 @@
-#!/bin/bash
+#!/usr/bin/env node
 
-if [ $# -lt 3 ]
-  then
-    echo "arguments not enough"
-    exit 1
-fi
+const dateFormat = require('dateformat');
+const fs = require('fs');
+const stringify = require('json-stable-stringify');
+const { execSync } = require('child_process');
 
-autoumldocKey=$1
+const padLeft = (content, length, padding) => {
+  if (length - content.length + 1 <= 0) {
+    return content;
+  }
+  return (new Array(length - content.length + 1).join(padding) + content);
+};
 
-autoumldocMerge="/tmp/$(basename "$0")_merge_$(date +%Y%m%d)"
-autoumldocMergeSort="${autoumldocMerge}_sort"
-autoumldocMergeSortAdd="${autoumldocMerge}_sort_add"
-autoumldocMergeSortAddCommend="${autoumldocMerge}_sort_add_commend"
+const padRight = (content, length, padding) => {
+  if (length - content.length + 1 <= 0) {
+    return content;
+  }
+  return (content + new Array(length - content.length + 1).join(padding));
+};
 
-/usr/local/bin/ag --ignore vendor --ignore node_modules --ignore Pods --ignore target --nocolor --nogroup "//[ \t]{1,}autoumldoc[ \t]{1,}${autoumldocKey}" | \
-sed -e 's/[ \t]*\/\//\/\//' > "${autoumldocMerge}"
-
-autoumldocKey=$1
-startNumber=$2
-addNumber=$3
-
-cat "${autoumldocMerge}" | \
-awk '
-BEGIN {
-    RS = "\r\n|\n";
-    OFS=FS="//[ \t]*autoumldoc[ \t]*";
+let autoumldocKey = '';
+if (process.argv.length >= 3) {
+  autoumldocKey = process.argv[2];
 }
-{
-    printf("%s%s%s%s\n", $2, " /\x27 ", $1, " \x27/");
+let startNumber = process.argv[3];
+let addNumber = process.argv[4];
+
+let agRawResult = execSync(`/usr/local/bin/ag \
+--ignore Applications \
+--ignore build \
+--ignore coverage \
+--ignore go \
+--ignore Library \
+--ignore Music \
+--ignore node_modules \
+--ignore Pictures \
+--ignore Pods \
+--ignore target \
+--ignore test \
+--ignore vendor \
+--nocolor \
+--nogroup \
+"// autoumldoc ${autoumldocKey} [1-9]{1,}[0-9]{0,} "`).toString();
+
+let agLines = agRawResult.split('\n');
+let agLineMap = {};
+
+for (let agLine of agLines) {
+  if (agLine.length === 0) {
+    continue;
+  }
+  let agLineComponets = agLine.split('//').map((item) => {
+    return item.trim();
+  });
+
+  let filePositionInfo = agLineComponets[0];
+  let autoInfoAndUmlContent = agLineComponets[1];
+  let contentInfos = autoInfoAndUmlContent.split(' ');
+  let umlContent = contentInfos.slice(3).join(' ');
+  let autoType = contentInfos[1];
+  let autoIndex = contentInfos[2];
+  let autoIndexNew = autoIndex;
+
+  if (!agLineMap[autoType]) {
+    agLineMap[autoType] = [];
+  }
+  if (parseInt(autoIndex) < startNumber) {
+    continue;
+  } else {
+    autoIndexNew = (parseInt(autoIndex) + parseInt(addNumber)).toString();
+  }
+
+  agLineMap[autoType].push({
+    autoType,
+    autoIndex,
+    autoIndexNew,
+    umlContent,
+    filePositionInfo
+  });
 }
-END {
-}' | \
-awk '
-{
-    $2=sprintf("%14s", $2);
-    printf("%s\n", $0);
-}' | \
-sort -r > "${autoumldocMergeSort}"
 
+for (let key in agLineMap) {
+  agLineMap[key]  =  agLineMap[key].sort((a, b) => {
+    return parseInt(a.autoIndex) < parseInt(b.autoIndex);
+  });
 
-cat "${autoumldocMergeSort}" | \
-awk -v autoumldocKey="${autoumldocKey}" -v startNumber="${startNumber}" -v addNumber="${addNumber}" '{
-    numberAdded=$2
-    if($2 >= startNumber) {
-        numberAdded=$2+addNumber
-        sedCommand=sprintf("sed -i \x27\x27 -e \x27s/[ \\t]* %s[ \\t]* %s [ \\t]*/ %s %s /\x27", autoumldocKey, $2, autoumldocKey, numberAdded);
-        $1=""
-        $2=sedCommand
-        printf("%s\n", $0);
-    }
-}' > ${autoumldocMergeSortAdd}
+  let outputContent = '';
+  outputContent += '#!/bin/bash\n\n';
+  outputContent += 'set -e\n\n';
+  outputContent += `cd ${process.cwd()}\n\n`;
 
+  for (let item of agLineMap[key]) {
+    let fileName = item.filePositionInfo.split(':')[0];
+    outputContent += `sed -i '' -e 's/ autoumldoc ${item.autoType} ${item.autoIndex} / autoumldoc ${item.autoType} ${item.autoIndexNew} /' ${fileName} # ${item.umlContent}\n`;
+  }
+  // 
+  // 
 
-echo '#!/bin/bash' >  ${autoumldocMergeSortAddCommend}
-echo ''            >> ${autoumldocMergeSortAddCommend}
-echo "cd $(pwd)"   >> ${autoumldocMergeSortAddCommend}
-echo ''            >> ${autoumldocMergeSortAddCommend}
-chmod +x              ${autoumldocMergeSortAddCommend}
+  let outputFileName = `/tmp/com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd_HH')}_${key}_update.sh`;
+  fs.writeFileSync(outputFileName, outputContent);
+  console.log(outputContent);
 
-cat "${autoumldocMergeSortAdd}" | \
-awk '
-BEGIN {
-    OFS=FS="/\x27";
+  console.log('');
+  console.log('!!! Becareful, using git to backup your file before runing these command');
+  console.log(`/bin/bash ${outputFileName}`);
 }
-{
-    lineNumber=substr($3, index($3, ":"));
-    gsub(":", "", lineNumber);
-
-    gsub("\x27/", "", $3)
-    gsub(":[0-9]{1,}:", "", $3)
-
-    printf("%s/\x27%s # %s %s\n", $1, $3, lineNumber, $2);
-}' >> ${autoumldocMergeSortAddCommend}
-
-
-echo "cat ${autoumldocMerge}"
-      cat ${autoumldocMerge}
-echo ""
-echo "cat ${autoumldocMergeSort}"
-      cat ${autoumldocMergeSort}
-echo ""
-echo "cat ${autoumldocMergeSortAdd}"
-      cat ${autoumldocMergeSortAdd}
-echo ""
-echo "cat ${autoumldocMergeSortAddCommend}"
-      cat ${autoumldocMergeSortAddCommend}
-echo ""
-
-
-echo ""
-echo "!!! Becareful, using git to backup your file before runing these command"
-echo "/bin/bash ${autoumldocMergeSortAddCommend}"

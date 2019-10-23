@@ -1,79 +1,107 @@
-#!/bin/bash
+#!/usr/bin/env node
 
-if [ $# -lt 1 ]
-  then
-    echo "arguments not enough"
-    exit 1
-fi
+const dateFormat = require('dateformat');
+const fs = require('fs');
+const stringify = require('json-stable-stringify');
+const { execSync } = require('child_process');
 
-autoumldocKey=$1
+const padLeft = (content, length, padding) => {
+  if (length - content.length + 1 <= 0) {
+    return content;
+  }
+  return (new Array(length - content.length + 1).join(padding) + content);
+};
 
-autoumldocMerge="/tmp/$(basename "$0")_merge_$(date +%Y%m%d)"
-autoumldocMergeSort="${autoumldocMerge}_sort"
+const padRight = (content, length, padding) => {
+  if (length - content.length + 1 <= 0) {
+    return content;
+  }
+  return (content + new Array(length - content.length + 1).join(padding));
+};
 
-
-
-/usr/local/bin/ag --ignore vendor --ignore node_modules --ignore Pods --ignore target --nocolor --nogroup "//[ \t]{1,}autoumldoc[ \t]{1,}${autoumldocKey}" | \
-sed -e 's/[ \t]*\/\//\/\//' > "${autoumldocMerge}"
-
-
-
-
-
-cat "${autoumldocMerge}" | \
-awk '
-BEGIN {
-    RS = "\r\n|\n";
-    OFS=FS="//[ \t]*autoumldoc[ \t]*";
+let autoumldocKey = '';
+if (process.argv.length >= 3) {
+  autoumldocKey = process.argv[2];
 }
-{
-    printf("%s%s%s%s\n", $2, " /\x27 ", $1, " \x27/");
+// 
+// 
+// 
+let agRawResult = execSync(`/usr/local/bin/ag \
+--ignore Applications \
+--ignore build \
+--ignore coverage \
+--ignore go \
+--ignore Library \
+--ignore Music \
+--ignore node_modules \
+--ignore Pictures \
+--ignore Pods \
+--ignore target \
+--ignore test \
+--ignore vendor \
+--nocolor \
+--nogroup \
+"// autoumldoc ${autoumldocKey} [1-9]{1,}[0-9]{0,} "`).toString();
+
+let agLines = agRawResult.split('\n');
+let agLineMap = {};
+
+for (let agLine of agLines) {
+  if (agLine.length === 0) {
+    continue;
+  }
+  let agLineComponets = agLine.split('//').map((item) => {
+    return item.trim();
+  });
+
+  let filePositionInfo = agLineComponets[0];
+  let autoInfoAndUmlContent = agLineComponets[1];
+  let contentInfos = autoInfoAndUmlContent.split(' ');
+  let umlContent = contentInfos.slice(3).join(' ');
+  let autoType = contentInfos[1];
+  let autoIndex = contentInfos[2];
+  // 
+
+  if (!agLineMap[autoType]) {
+    agLineMap[autoType] = [];
+  }
+  // 
+  // 
+  // 
+  // 
+  //   
+  // 
+  agLineMap[autoType].push({
+    autoType,
+    autoIndex,
+    // 
+    umlContent,
+    filePositionInfo
+  });
 }
-END {
-}' | \
-awk '
-{
-    indexOrigin=$2;
-    $2=sprintf("%14s", $2);
-    for(i=4; i<=NF; i++) {
-      gsub("/\x27", "/\x27 " indexOrigin, $i);
-    }
-    printf("%s\n", $0);
-}' | \
-sort > "${autoumldocMergeSort}"
 
+for (let key in agLineMap) {
+  agLineMap[key]  =  agLineMap[key].sort((a, b) => {
+    return parseInt(a.autoIndex) > parseInt(b.autoIndex);
+  });
 
-echo "cat ${autoumldocMerge}"
-      cat ${autoumldocMerge}
-echo ""
-echo "cat ${autoumldocMergeSort}"
-      cat ${autoumldocMergeSort}
-echo ""
+  let outputContent = '';
+  outputContent += '@startuml\n';
+  outputContent += 'start\n';
+  // 
 
+  for (let item of agLineMap[key]) {
+    // 
+    outputContent += `${padRight(item.umlContent, 30, ' ')} /' ${padRight(item.autoIndex, 13, ' ')} ${item.autoType} ${item.filePositionInfo} '/\n`;
+  }
+  outputContent += 'end\n';
+  outputContent += '@enduml\n';
 
-keyArray=($(cat "${autoumldocMergeSort}" | cut -d' ' -f1 | uniq))
-for key in ${keyArray[@]};
-do
-    autoumldocMergeSortKey="${autoumldocMergeSort}_${key}.plantuml"
-    echo "@startuml" >  "${autoumldocMergeSortKey}"
-    echo "start"     >> "${autoumldocMergeSortKey}"
-    cat  "${autoumldocMergeSort}" | \
-        awk '
-        {
-          for(i=1; i<=2; i++) {
-            $i="";
-          }
-          print $0;
-        }' | \
-        awk -F "/\x27" '
-        {
-          gsub(":[ \t]{1,}", " ", $2)
-          printf("%-60s /\x27%s\n", $1, $2);
-        }' >> "${autoumldocMergeSortKey}"
-    echo "end"       >> "${autoumldocMergeSortKey}"
-    echo "@enduml"   >> "${autoumldocMergeSortKey}"
-    echo "open -a Atom ${autoumldocMergeSortKey}"
-    echo "cat          ${autoumldocMergeSortKey}"
-          cat          ${autoumldocMergeSortKey}
-    echo ""
-done
+  let outputFileName = `/tmp/com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd_HH')}_${key}.plantuml`;
+  fs.writeFileSync(outputFileName, outputContent);
+  console.log(outputContent);
+
+  console.log('');
+  // 
+  console.log(`open -a Atom ${outputFileName}`);
+}
