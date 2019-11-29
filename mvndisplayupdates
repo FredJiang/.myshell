@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# mvn $@ versions:display-plugin-updates versions:display-dependency-updates versions:display-property-updates
+  mvn -U versions:display-plugin-updates versions:display-dependency-updates versions:display-property-updates

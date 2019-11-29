@@ -4,5 +4,6 @@
 # [ $# -ge 1 -a -f "$1" ] && input="$1" || input="-"
 # cat $input | tee /tmp/myshell.$(basename "$0")
 
-touch                 /tmp/myshell_$(basename "$0")
-open -a Sublime\ Text /tmp/myshell_$(basename "$0")
+touch                 /tmp/myshell_$(basename "$0")l
+touch                 /tmp/myshell_$(basename "$0")r
+open -a Sublime\ Text /tmp/myshell_$(basename "$0")l /tmp/myshell_$(basename "$0")r

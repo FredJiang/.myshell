@@ -1,9 +1,41 @@
 #!/usr/bin/env node
 
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
 const dateFormat = require('dateformat');
 const fs = require('fs');
+const http = require('http');
+const path = require('path');
+const querystring = require('querystring');
 const stringify = require('json-stable-stringify');
+const url = require('url');
+const watch = require('node-watch');
 const { execSync } = require('child_process');
+
+const currentWorkingDir = process.cwd();
+const optionDefinitions = [
+  { name: 'autoumldocKey', alias: 'k', type: String },
+  { name: 'execShell', alias: 'e', type: String, description: 'execShell' },
+  { name: 'folders', alias: 'f', type: String, description: 'folder1,folder2' },
+  { name: 'help', alias: 'h', type: String },
+  { name: 'incNumber', alias: 'i', type: Number },
+  { name: 'monitor', alias: 'm', type: String, description: 'fileChange,http' },
+  { name: 'output', alias: 'o', type: String, description: 'output' },
+  { name: 'startNumber', alias: 's', type: Number }
+];
+const options = commandLineArgs(optionDefinitions);
+// console.log(options);
+if (typeof options.help !== 'undefined') {
+  const sections = [
+    {
+      header     : 'Options',
+      optionList : optionDefinitions
+    }
+  ];
+  const usage = commandLineUsage(sections);
+  console.log(usage);
+  process.exit(0);
+}
 
 const padLeft = (content, length, padding) => {
   if (length - content.length + 1 <= 0) {
@@ -19,90 +51,150 @@ const padRight = (content, length, padding) => {
   return (content + new Array(length - content.length + 1).join(padding));
 };
 
-let autoumldocKey = '';
-if (process.argv.length >= 3) {
-  autoumldocKey = process.argv[2];
-}
-let startNumber = process.argv[3];
-let addNumber = process.argv[4];
+let autoumldocKey = options.autoumldocKey;
 
-let agRawResult = execSync(`/usr/local/bin/ag \
---ignore Applications \
---ignore build \
---ignore coverage \
---ignore go \
---ignore Library \
---ignore Music \
---ignore node_modules \
---ignore Pictures \
---ignore Pods \
---ignore target \
---ignore test \
---ignore vendor \
+let folderArray = (options.folders ? options.folders : '.').split(',');
+folderArray = folderArray.map((folder) => {
+  if (!path.isAbsolute(folder)) {
+    folder = path.join(currentWorkingDir, folder);
+  }
+
+  let folderParts =  path.parse(folder);
+  let folderWithoutSlash = folderParts.dir + '/' + folderParts.base;
+
+  let currentWorkingDirParts =  path.parse(currentWorkingDir);
+  let currentWorkingDirWithSlash = currentWorkingDirParts.dir + '/' + currentWorkingDirParts.base + '/';
+
+  folderWithoutSlash = folderWithoutSlash.replace(currentWorkingDirWithSlash, '');
+
+  return folderWithoutSlash;
+});
+let foldersStringWithSpace = folderArray.join(' ');
+let startNumber = options.startNumber;
+let incNumber = options.incNumber;
+
+let fileSearchType = ['js', 'java'];
+let fileSearchTypeString = fileSearchType.join('|');
+const getAgCommand = (filesOrFolders) => {
+  let agCommand = `/usr/local/bin/ag \
+--file-search-regex '\\.(${fileSearchTypeString})$' \
+--ignore-dir Applications \
+--ignore-dir build \
+--ignore-dir coverage \
+--ignore-dir go \
+--ignore-dir Library \
+--ignore-dir Music \
+--ignore-dir node_modules \
+--ignore-dir Pictures \
+--ignore-dir Pods \
+--ignore-dir target \
+--ignore-dir test \
+--ignore-dir vendor \
 --nocolor \
 --nogroup \
-"// autoumldoc ${autoumldocKey} [1-9]{1,}[0-9]{0,} "`).toString();
+"// autoumldoc ${autoumldocKey} [1-9]{1,}[0-9]{0,} " \
+${filesOrFolders}`;
+  return agCommand;
+};
 
-let agLines = agRawResult.split('\n');
 let agLineMap = {};
 
-for (let agLine of agLines) {
-  if (agLine.length === 0) {
-    continue;
+const getAgLines = (filesOrFolders) => {
+  let agCommand = getAgCommand(filesOrFolders);
+  // console.log(agCommand);
+  let agRawResult = execSync(agCommand).toString();
+  let agLines = agRawResult.split('\n');
+  return agLines;
+};
+let agLines = getAgLines(foldersStringWithSpace);
+
+const populateAgLineMap = (agLines) => {
+  for (let agLine of agLines) {
+    if (agLine.length === 0) {
+      continue;
+    }
+    let agLineComponets = agLine.split('//').map((item) => {
+      return item.trim();
+    });
+
+    let filePositionInfo = agLineComponets[0];
+    let autoInfoAndUmlContent = agLineComponets[1];
+    let contentInfos = autoInfoAndUmlContent.split(' ');
+    let umlContent = contentInfos.slice(3).join(' ');
+    let autoType = contentInfos[1];
+    let autoIndex = contentInfos[2];
+    let autoIndexNew = autoIndex;
+
+    if (!agLineMap[autoType]) {
+      agLineMap[autoType] = [];
+    }
+    if (parseInt(autoIndex) < startNumber) {
+      continue;
+    } else {
+      autoIndexNew = (parseInt(autoIndex) + parseInt(incNumber)).toString();
+    }
+
+    let filePositionInfoItems = filePositionInfo.split(':');
+    let fileName = filePositionInfoItems[0];
+    let fileLine = filePositionInfoItems[1];
+    agLineMap[autoType].push({
+      autoType,
+      autoIndex,
+      autoIndexNew,
+      umlContent,
+      filePositionInfo,
+      fileName,
+      fileLine
+    });
   }
-  let agLineComponets = agLine.split('//').map((item) => {
-    return item.trim();
-  });
+};
+populateAgLineMap(agLines);
 
-  let filePositionInfo = agLineComponets[0];
-  let autoInfoAndUmlContent = agLineComponets[1];
-  let contentInfos = autoInfoAndUmlContent.split(' ');
-  let umlContent = contentInfos.slice(3).join(' ');
-  let autoType = contentInfos[1];
-  let autoIndex = contentInfos[2];
-  let autoIndexNew = autoIndex;
+const outputAgLineMap = (agLineMap) => {
+  for (let key in agLineMap) {
+    agLineMap[key]  =  agLineMap[key].sort((a, b) => {
+      return parseInt(a.autoIndex) - parseInt(b.autoIndex);
+    });
 
-  if (!agLineMap[autoType]) {
-    agLineMap[autoType] = [];
+    let outputContent = '';
+    outputContent += '#!/bin/bash\n\n';
+    outputContent += '# !!! Becareful, using git to backup your file before runing these command\n\n';
+    outputContent += 'set -e\n\n';
+    outputContent += `cd ${process.cwd()}\n\n`;
+
+    for (let item of agLineMap[key]) {
+      let filePositionInfoItems = item.filePositionInfo.split(':');
+      let paddingFileLineString = '';
+      let paddingLength = 5 - (item.fileLine + '').length;
+      if (paddingLength > 0) {
+        paddingFileLineString = Array(paddingLength).join(' ');
+      }
+      outputContent += `sed -i '' -e ${paddingFileLineString} '${item.fileLine}s/ autoumldoc ${item.autoType} ${item.autoIndex} / autoumldoc ${item.autoType} ${item.autoIndexNew} /' ${item.fileName} # ${item.umlContent}\n`;
+    }
+    // 
+    // 
+
+    let outputDir = '/tmp';
+    if (typeof options.output !== 'undefined') {
+      outputDir = options.output;
+      if (outputDir.substr(0, 1) !== '~' && outputDir.substr(0, 1) !== '/') {
+        outputDir = path.normalize(currentWorkingDir + '/' + outputDir);
+      }
+    }
+    let outputFileName = `${outputDir}/${key}_update_com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd')}.sh`;
+    fs.writeFileSync(outputFileName, outputContent);
+    console.log(outputContent);
+
+    console.log('');
+    console.log(`open -a Sublime\\ Text ${outputFileName}`);
+    // execSync(`open -a Sublime\\ Text ${outputFileName}`);
+    // 
+    // 
+    console.log('----------------------------------------------------------------');
+    if (options.execShell === 'true') {
+      console.log('options.execShell', options.execShell);
+      execSync(`/usr/local/bin/bash ${outputFileName}`);
+    }
   }
-  if (parseInt(autoIndex) < startNumber) {
-    continue;
-  } else {
-    autoIndexNew = (parseInt(autoIndex) + parseInt(addNumber)).toString();
-  }
-
-  agLineMap[autoType].push({
-    autoType,
-    autoIndex,
-    autoIndexNew,
-    umlContent,
-    filePositionInfo
-  });
-}
-
-for (let key in agLineMap) {
-  agLineMap[key]  =  agLineMap[key].sort((a, b) => {
-    return parseInt(a.autoIndex) < parseInt(b.autoIndex);
-  });
-
-  let outputContent = '';
-  outputContent += '#!/bin/bash\n\n';
-  outputContent += '# !!! Becareful, using git to backup your file before runing these command\n\n';
-  outputContent += 'set -e\n\n';
-  outputContent += `cd ${process.cwd()}\n\n`;
-
-  for (let item of agLineMap[key]) {
-    let fileName = item.filePositionInfo.split(':')[0];
-    outputContent += `sed -i '' -e 's/ autoumldoc ${item.autoType} ${item.autoIndex} / autoumldoc ${item.autoType} ${item.autoIndexNew} /' ${fileName} # ${item.umlContent}\n`;
-  }
-  // 
-  // 
-
-  let outputFileName = `/tmp/com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd_HH')}_${key}_update.sh`;
-  fs.writeFileSync(outputFileName, outputContent);
-  console.log(outputContent);
-
-  console.log('');
-  console.log(`open -a Sublime\\ Text ${outputFileName}`);
-  execSync(`open -a Sublime\\ Text ${outputFileName}`);
-}
+};
+outputAgLineMap(agLineMap);

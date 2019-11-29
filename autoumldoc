@@ -1,9 +1,41 @@
 #!/usr/bin/env node
 
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
 const dateFormat = require('dateformat');
 const fs = require('fs');
+const http = require('http');
+const path = require('path');
+const querystring = require('querystring');
 const stringify = require('json-stable-stringify');
+const url = require('url');
+const watch = require('node-watch');
 const { execSync } = require('child_process');
+
+const currentWorkingDir = process.cwd();
+const optionDefinitions = [
+  { name: 'autoumldocKey', alias: 'k', type: String },
+  { name: 'execShell', alias: 'e', type: String, description: 'execShell' },
+  { name: 'folders', alias: 'f', type: String, description: 'folder1,folder2' },
+  { name: 'help', alias: 'h', type: String },
+  { name: 'incNumber', alias: 'i', type: Number },
+  { name: 'monitor', alias: 'm', type: String, description: 'fileChange,http' },
+  { name: 'output', alias: 'o', type: String, description: 'output' },
+  { name: 'startNumber', alias: 's', type: Number }
+];
+const options = commandLineArgs(optionDefinitions);
+// console.log(options);
+if (typeof options.help !== 'undefined') {
+  const sections = [
+    {
+      header     : 'Options',
+      optionList : optionDefinitions
+    }
+  ];
+  const usage = commandLineUsage(sections);
+  console.log(usage);
+  process.exit(0);
+}
 
 const padLeft = (content, length, padding) => {
   if (length - content.length + 1 <= 0) {
@@ -19,90 +51,250 @@ const padRight = (content, length, padding) => {
   return (content + new Array(length - content.length + 1).join(padding));
 };
 
-let autoumldocKey = '';
-if (process.argv.length >= 3) {
-  autoumldocKey = process.argv[2];
-}
+let autoumldocKey = options.autoumldocKey;
+
+let folderArray = (options.folders ? options.folders : '.').split(',');
+folderArray = folderArray.map((folder) => {
+  if (!path.isAbsolute(folder)) {
+    folder = path.join(currentWorkingDir, folder);
+  }
+
+  let folderParts =  path.parse(folder);
+  let folderWithoutSlash = folderParts.dir + '/' + folderParts.base;
+
+  let currentWorkingDirParts =  path.parse(currentWorkingDir);
+  let currentWorkingDirWithSlash = currentWorkingDirParts.dir + '/' + currentWorkingDirParts.base + '/';
+
+  folderWithoutSlash = folderWithoutSlash.replace(currentWorkingDirWithSlash, '');
+
+  return folderWithoutSlash;
+});
+let foldersStringWithSpace = folderArray.join(' ');
 // 
 // 
 // 
-let agRawResult = execSync(`/usr/local/bin/ag \
---ignore Applications \
---ignore build \
---ignore coverage \
---ignore go \
---ignore Library \
---ignore Music \
---ignore node_modules \
---ignore Pictures \
---ignore Pods \
---ignore target \
---ignore test \
---ignore vendor \
+let fileSearchType = ['js', 'java'];
+let fileSearchTypeString = fileSearchType.join('|');
+const getAgCommand = (filesOrFolders) => {
+  let agCommand = `/usr/local/bin/ag \
+--file-search-regex '\\.(${fileSearchTypeString})$' \
+--ignore-dir Applications \
+--ignore-dir build \
+--ignore-dir coverage \
+--ignore-dir go \
+--ignore-dir Library \
+--ignore-dir Music \
+--ignore-dir node_modules \
+--ignore-dir Pictures \
+--ignore-dir Pods \
+--ignore-dir target \
+--ignore-dir test \
+--ignore-dir vendor \
 --nocolor \
 --nogroup \
-"// autoumldoc ${autoumldocKey} [1-9]{1,}[0-9]{0,} "`).toString();
+"// autoumldoc ${autoumldocKey} [1-9]{1,}[0-9]{0,} " \
+${filesOrFolders}`;
+  return agCommand;
+};
 
-let agLines = agRawResult.split('\n');
 let agLineMap = {};
 
-for (let agLine of agLines) {
-  if (agLine.length === 0) {
-    continue;
-  }
-  let agLineComponets = agLine.split('//').map((item) => {
-    return item.trim();
-  });
+const getAgLines = (filesOrFolders) => {
+  let agCommand = getAgCommand(filesOrFolders);
+  // console.log(agCommand);
+  let agRawResult = execSync(agCommand).toString();
+  let agLines = agRawResult.split('\n');
+  return agLines;
+};
+let agLines = getAgLines(foldersStringWithSpace);
 
-  let filePositionInfo = agLineComponets[0];
-  let autoInfoAndUmlContent = agLineComponets[1];
-  let contentInfos = autoInfoAndUmlContent.split(' ');
-  let umlContent = contentInfos.slice(3).join(' ');
-  let autoType = contentInfos[1];
-  let autoIndex = contentInfos[2];
-  // 
+const populateAgLineMap = (agLines) => {
+  for (let agLine of agLines) {
+    if (agLine.length === 0) {
+      continue;
+    }
+    let agLineComponets = agLine.split('//').map((item) => {
+      return item.trim();
+    });
 
-  if (!agLineMap[autoType]) {
-    agLineMap[autoType] = [];
-  }
-  // 
-  // 
-  // 
-  // 
-  //   
-  // 
-  agLineMap[autoType].push({
-    autoType,
-    autoIndex,
+    let filePositionInfo = agLineComponets[0];
+    let autoInfoAndUmlContent = agLineComponets[1];
+    let contentInfos = autoInfoAndUmlContent.split(' ');
+    let umlContent = contentInfos.slice(3).join(' ');
+    let autoType = contentInfos[1];
+    let autoIndex = contentInfos[2];
     // 
-    umlContent,
-    filePositionInfo
-  });
-}
 
-for (let key in agLineMap) {
-  agLineMap[key]  =  agLineMap[key].sort((a, b) => {
-    return parseInt(a.autoIndex) > parseInt(b.autoIndex);
-  });
-
-  let outputContent = '';
-  outputContent += '@startuml\n';
-  outputContent += 'start\n';
-  // 
-  // 
-
-  for (let item of agLineMap[key]) {
+    if (!agLineMap[autoType]) {
+      agLineMap[autoType] = [];
+    }
     // 
-    outputContent += `${padRight(item.umlContent, 30, ' ')} /' ${padRight(item.autoIndex, 13, ' ')} ${item.autoType} ${item.filePositionInfo} '/\n`;
+    // 
+    // 
+    // 
+    //   
+    // 
+    let filePositionInfoItems = filePositionInfo.split(':');
+    let fileName = filePositionInfoItems[0];
+    let fileLine = filePositionInfoItems[1];
+    agLineMap[autoType].push({
+      autoType,
+      autoIndex,
+      // 
+      umlContent,
+      filePositionInfo,
+      fileName,
+      fileLine
+    });
   }
-  outputContent += 'end\n';
-  outputContent += '@enduml\n';
+};
+populateAgLineMap(agLines);
 
-  let outputFileName = `/tmp/com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd_HH')}_${key}.plantuml`;
-  fs.writeFileSync(outputFileName, outputContent);
-  console.log(outputContent);
+const outputAgLineMap = (agLineMap) => {
+  for (let key in agLineMap) {
+    agLineMap[key]  =  agLineMap[key].sort((a, b) => {
+      return parseInt(a.autoIndex) - parseInt(b.autoIndex);
+    });
 
-  console.log('');
-  console.log(`open -a Atom ${outputFileName}`);
-  execSync(`open -a Atom ${outputFileName}`);
+    let outputContent = '';
+    outputContent += '@startuml\n';
+    // outputContent += 'start\n';
+    // 
+    // 
+
+    for (let item of agLineMap[key]) {
+    // 
+      // outputContent += `${padRight(item.umlContent, 60, ' ')} /' ${padRight(item.autoIndex, 13, ' ')}${item.autoType} ${item.filePositionInfo} '/\n`;
+      outputContent += `${padRight(item.umlContent, 100, ' ')} /' ${padRight(item.autoIndex, 6, ' ')} ${item.filePositionInfo} '/\n`;
+    }
+    // outputContent += 'end\n';
+    outputContent += '@enduml\n';
+
+    let outputDir = '/tmp';
+    if (typeof options.output !== 'undefined') {
+      outputDir = options.output;
+      if (outputDir.substr(0, 1) !== '~' && outputDir.substr(0, 1) !== '/') {
+        outputDir = path.normalize(currentWorkingDir + '/' + outputDir);
+      }
+    }
+    let outputFileName = `${outputDir}/${key}_com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd')}.plantuml`;
+    fs.writeFileSync(outputFileName, outputContent);
+    console.log(outputContent);
+
+    console.log('');
+    console.log(`open -a Sublime\\ Text ${outputFileName}`);
+    // execSync(`open -a Sublime\\ Text ${outputFileName}`);
+    console.log(`open -a Atom ${outputFileName}`);
+    // execSync(`open -a Atom ${outputFileName}`);
+    console.log('----------------------------------------------------------------');
+  }
+};
+outputAgLineMap(agLineMap);
+
+const fileChangeHandler = (eventName, fileNameChanged) => {
+  if (eventName === 'update') {
+    let agLines = getAgLines(fileNameChanged);
+    agLines = agLines.map((agLine) => {
+      if (agLine.length === 0) {
+        return agLine;
+      }
+      return fileNameChanged + ':' + agLine;
+    });
+
+    for (let agLine of agLines) {
+      if (agLine.length === 0) {
+        continue;
+      }
+
+      let agLineComponets = agLine.split('//').map((item) => {
+        return item.trim();
+      });
+
+      let filePositionInfo = agLineComponets[0];
+      let autoInfoAndUmlContent = agLineComponets[1];
+      let contentInfos = autoInfoAndUmlContent.split(' ');
+
+      let autoType = contentInfos[1];
+
+      if (agLineMap[autoType] && agLineMap[autoType].length > 0) {
+        let filePositionInfoItems = filePositionInfo.split(':');
+        let fileName = filePositionInfoItems[0];
+        // let fileLine = filePositionInfoItems[1];
+
+        for (let index = agLineMap[autoType].length - 1; index >= 0; index--) {
+          let item = agLineMap[autoType][index];
+          // if (fileName === item.fileName && fileLine === item.fileLine) {
+          if (fileName === item.fileName) {
+            agLineMap[autoType].splice(index, 1);
+          }
+        }
+      }
+    }
+
+    populateAgLineMap(agLines);
+    outputAgLineMap(agLineMap);
+  }
+};
+
+if (options.monitor) {
+  if (options.monitor === 'fileChange') {
+    let foldersWatched = (options.folders ? options.folders : '.').split(/,/);
+    for (let folder of foldersWatched) {
+      ((folder) => {
+        watch(folder, {
+          delay     : 5000,
+          recursive : true,
+          filter    : (f) => {
+            if (/\.git/.test(f)) { return false; }
+            if (/\.gradle/.test(f)) { return false; }
+            if (/\.idea/.test(f)) { return false; }
+            if (/build/.test(f)) { return false; }
+            if (/node_modules/.test(f)) { return false; }
+            if (/target/.test(f)) { return false; }
+            if (/test/.test(f)) { return false; }
+            console.log(`file changed ${f}`);
+            return true;
+          }
+        }, (eventName, fileNameChanged) => {
+          // console.log({
+          //   folder,
+          //   fileNameChanged,
+          //   eventName
+          // });
+
+          let fileNameChangedParts =  path.parse(fileNameChanged);
+          if (fileNameChangedParts.ext && fileNameChangedParts.ext.length) {
+            for (let fileType of fileSearchType) {
+              if (fileNameChangedParts.ext === '.' + fileType) {
+                try {
+                  fileChangeHandler(eventName, fileNameChanged);
+                } catch (error) {
+                  console.error(error);
+                }
+
+                break;
+              }
+            }
+          }
+        });
+      })(folder);
+    }
+  }
+  if (options.monitor === 'http') {
+    http.createServer((req, res) => {
+      let parsedUrl = url.parse(req.url);
+      let parseQuery = querystring.parse(parsedUrl.query);
+      parseQuery.fileNameChanged = parseQuery.fileNameChanged.replace(currentWorkingDir + '/', '');
+
+      try {
+        fileChangeHandler(parseQuery.eventName, parseQuery.fileNameChanged);
+      } catch (error) {
+        console.error(error);
+      }
+      console.log({parseQuery});
+
+      res.writeHead(200);
+      res.end('{code:0}');
+    }).listen(3000);
+  }
 }

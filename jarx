@@ -25,4 +25,4 @@ cd ${jarx_dir}
 jar xf $1
 
 # java -jar ${cfr_jar_path} --help
-java -jar ${cfr_jar_path} $1 --silent true --outputdir sourceCode
+  java -jar ${cfr_jar_path} $1 --silent true --outputdir sourceCode
