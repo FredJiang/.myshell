@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -jar /opt/javaDecompiler/bytecodeViewer/Bytecode-Viewer-2.9.22.jar "$@"

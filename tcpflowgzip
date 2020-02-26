@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# 第一行开始 到 空行
+# sed -e '1,/^[[:space:]]*$/d' "$@" | gzip -d
+sed -e '1,/^[[:space:]]*$/d' "$@" | zcat

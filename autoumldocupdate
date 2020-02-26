@@ -15,7 +15,7 @@ const { execSync } = require('child_process');
 const currentWorkingDir = process.cwd();
 const optionDefinitions = [
   { name: 'autoumldocKey', alias: 'k', type: String },
-  { name: 'execShell', alias: 'e', type: String, description: 'execShell' },
+  { name: 'execShell', alias: 'e', type: String, description: 'true' },
   { name: 'folders', alias: 'f', type: String, description: 'folder1,folder2' },
   { name: 'help', alias: 'h', type: String },
   { name: 'incNumber', alias: 'i', type: Number },
@@ -162,6 +162,11 @@ const outputAgLineMap = (agLineMap) => {
     outputContent += 'set -e\n\n';
     outputContent += `cd ${process.cwd()}\n\n`;
 
+    let fileNameMaxLength = 0;
+    for (let item of agLineMap[key]) {
+      fileNameMaxLength = Math.max(item.fileName.length, fileNameMaxLength);
+    }
+
     for (let item of agLineMap[key]) {
       let filePositionInfoItems = item.filePositionInfo.split(':');
       let paddingFileLineString = '';
@@ -169,7 +174,10 @@ const outputAgLineMap = (agLineMap) => {
       if (paddingLength > 0) {
         paddingFileLineString = Array(paddingLength).join(' ');
       }
-      outputContent += `sed -i '' -e ${paddingFileLineString} '${item.fileLine}s/ autoumldoc ${item.autoType} ${item.autoIndex} / autoumldoc ${item.autoType} ${item.autoIndexNew} /' ${item.fileName} # ${item.umlContent}\n`;
+
+      let paddingFileNameString = Array(fileNameMaxLength - item.fileName.length + 1).join(' ');
+
+      outputContent += `sed -i '' -e ${paddingFileLineString} '${item.fileLine}s/ autoumldoc ${item.autoType} ${item.autoIndex} / autoumldoc ${item.autoType} ${item.autoIndexNew} /' ${item.fileName} ${paddingFileNameString} # ${item.umlContent}\n`;
     }
     // 
     // 

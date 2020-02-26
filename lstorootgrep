@@ -1,0 +1,15 @@
+#!/bin/sh
+
+count=0
+currentDir=""
+while [ ${count} -le 100 ] && [ "${currentDir}" != "/" ]; do
+    count=$(( ${count} + 1 ))
+    currentDir=$(pwd)
+
+    find $(pwd) -maxdepth 1 -iname "*$@*" | grep --color=always -i "$@"
+    # echo "${currentDir}"
+    # ls -a | grep --color=always -i "$@"
+    # echo ""
+
+    cd ..
+done

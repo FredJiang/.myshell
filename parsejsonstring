@@ -64,7 +64,7 @@ console.log(tmp)
 
 // console.log(FgGreen);
 fs.writeFileSync(tmpFilePath, stringifyResult);
-execSync(`eslint --fix --config $HOME/.eslintrc_parsejsonstring.js ${tmpFilePath}`).toString();
+execSync(`eslint --fix --config $HOME/.eslintrc_parsejsonstring ${tmpFilePath}`).toString();
 stringifyResult = fs.readFileSync(tmpFilePath).toString();
 let stringifyResultLines = stringifyResult.split('\n');
 stringifyResultLines.shift();

@@ -3,3 +3,6 @@
 set -o xtrace
 
 ./gradlew bootRun
+
+# ./gradlew build
+# java -jar build/libs/your.jar

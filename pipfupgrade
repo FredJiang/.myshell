@@ -8,17 +8,12 @@ set -e
 
 
 
-/usr/local/bin/pip3      --version
-/usr/local/bin/pip3 list --outdated --format=freeze
-/usr/local/bin/pip3 list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip3   install --upgrade --user
+# /usr/local/bin/pip3      --version
+# /usr/local/bin/pip3 list --outdated --format=freeze
+# /usr/local/bin/pip3 list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip3   install --upgrade --user
+# echo "------------------------------------------------------------------------"
+
+/usr/local/bin/pip       --version
+/usr/local/bin/pip  list --outdated --format=freeze
+/usr/local/bin/pip  list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip    install --upgrade --user
 echo "------------------------------------------------------------------------"
-
-# /usr/local/bin/pip       --version
-# /usr/local/bin/pip  list --outdated --format=freeze
-# /usr/local/bin/pip  list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip    install --upgrade --user
-# echo "------------------------------------------------------------------------"
-
-# /usr/local/bin/pip2      --version
-# /usr/local/bin/pip2 list --outdated --format=freeze
-# /usr/local/bin/pip2 list --outdated --format=freeze | sed 's/==.*$//g' | xargs /usr/local/bin/pip2   install --upgrade --user
-# echo "------------------------------------------------------------------------"

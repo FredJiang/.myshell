@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const _ = require('lodash');
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 const dateFormat = require('dateformat');
@@ -15,12 +16,13 @@ const { execSync } = require('child_process');
 const currentWorkingDir = process.cwd();
 const optionDefinitions = [
   { name: 'autoumldocKey', alias: 'k', type: String },
-  { name: 'execShell', alias: 'e', type: String, description: 'execShell' },
+  { name: 'execShell', alias: 'e', type: String, description: 'true' },
   { name: 'folders', alias: 'f', type: String, description: 'folder1,folder2' },
   { name: 'help', alias: 'h', type: String },
   { name: 'incNumber', alias: 'i', type: Number },
   { name: 'monitor', alias: 'm', type: String, description: 'fileChange,http' },
   { name: 'output', alias: 'o', type: String, description: 'output' },
+  { name: 'plantumlFileName', type: String, description: 'plantumlFileName' },
   { name: 'startNumber', alias: 's', type: Number }
 ];
 const options = commandLineArgs(optionDefinitions);
@@ -51,7 +53,7 @@ const padRight = (content, length, padding) => {
   return (content + new Array(length - content.length + 1).join(padding));
 };
 
-let autoumldocKey = options.autoumldocKey;
+const autoumldocKey = options.autoumldocKey;
 
 let folderArray = (options.folders ? options.folders : '.').split(',');
 folderArray = folderArray.map((folder) => {
@@ -59,24 +61,24 @@ folderArray = folderArray.map((folder) => {
     folder = path.join(currentWorkingDir, folder);
   }
 
-  let folderParts =  path.parse(folder);
+  const folderParts =  path.parse(folder);
   let folderWithoutSlash = folderParts.dir + '/' + folderParts.base;
 
-  let currentWorkingDirParts =  path.parse(currentWorkingDir);
-  let currentWorkingDirWithSlash = currentWorkingDirParts.dir + '/' + currentWorkingDirParts.base + '/';
+  const currentWorkingDirParts =  path.parse(currentWorkingDir);
+  const currentWorkingDirWithSlash = currentWorkingDirParts.dir + '/' + currentWorkingDirParts.base + '/';
 
   folderWithoutSlash = folderWithoutSlash.replace(currentWorkingDirWithSlash, '');
 
   return folderWithoutSlash;
 });
-let foldersStringWithSpace = folderArray.join(' ');
-// 
-// 
-// 
-let fileSearchType = ['js', 'java'];
-let fileSearchTypeString = fileSearchType.join('|');
+const foldersStringWithSpace = folderArray.join(' ');
+//
+//
+//
+const fileSearchType = ['js', 'java'];
+const fileSearchTypeString = fileSearchType.join('|');
 const getAgCommand = (filesOrFolders) => {
-  let agCommand = `/usr/local/bin/ag \
+  const agCommand = `/usr/local/bin/ag \
 --file-search-regex '\\.(${fileSearchTypeString})$' \
 --ignore-dir Applications \
 --ignore-dir build \
@@ -97,50 +99,50 @@ ${filesOrFolders}`;
   return agCommand;
 };
 
-let agLineMap = {};
+const agLineMap = {};
 
 const getAgLines = (filesOrFolders) => {
-  let agCommand = getAgCommand(filesOrFolders);
+  const agCommand = getAgCommand(filesOrFolders);
   // console.log(agCommand);
-  let agRawResult = execSync(agCommand).toString();
-  let agLines = agRawResult.split('\n');
+  const agRawResult = execSync(agCommand).toString();
+  const agLines = agRawResult.split('\n');
   return agLines;
 };
-let agLines = getAgLines(foldersStringWithSpace);
+const agLines = getAgLines(foldersStringWithSpace);
 
 const populateAgLineMap = (agLines) => {
-  for (let agLine of agLines) {
+  for (const agLine of agLines) {
     if (agLine.length === 0) {
       continue;
     }
-    let agLineComponets = agLine.split('//').map((item) => {
+    const agLineComponets = agLine.split('//').map((item) => {
       return item.trim();
     });
 
-    let filePositionInfo = agLineComponets[0];
-    let autoInfoAndUmlContent = agLineComponets[1];
-    let contentInfos = autoInfoAndUmlContent.split(' ');
-    let umlContent = contentInfos.slice(3).join(' ');
-    let autoType = contentInfos[1];
-    let autoIndex = contentInfos[2];
-    // 
+    const filePositionInfo = agLineComponets[0];
+    const autoInfoAndUmlContent = agLineComponets[1];
+    const contentInfos = autoInfoAndUmlContent.split(' ');
+    const umlContent = contentInfos.slice(3).join(' ');
+    const autoType = contentInfos[1];
+    const autoIndex = contentInfos[2];
+    //
 
     if (!agLineMap[autoType]) {
       agLineMap[autoType] = [];
     }
-    // 
-    // 
-    // 
-    // 
-    //   
-    // 
-    let filePositionInfoItems = filePositionInfo.split(':');
-    let fileName = filePositionInfoItems[0];
-    let fileLine = filePositionInfoItems[1];
+    //
+    //
+    //
+    //
+    //
+    //
+    const filePositionInfoItems = filePositionInfo.split(':');
+    const fileName = filePositionInfoItems[0];
+    const fileLine = filePositionInfoItems[1];
     agLineMap[autoType].push({
       autoType,
       autoIndex,
-      // 
+      //
       umlContent,
       filePositionInfo,
       fileName,
@@ -151,7 +153,7 @@ const populateAgLineMap = (agLines) => {
 populateAgLineMap(agLines);
 
 const outputAgLineMap = (agLineMap) => {
-  for (let key in agLineMap) {
+  for (const key in agLineMap) {
     agLineMap[key]  =  agLineMap[key].sort((a, b) => {
       return parseInt(a.autoIndex) - parseInt(b.autoIndex);
     });
@@ -159,13 +161,22 @@ const outputAgLineMap = (agLineMap) => {
     let outputContent = '';
     outputContent += '@startuml\n';
     // outputContent += 'start\n';
-    // 
-    // 
+    //
+    //
 
-    for (let item of agLineMap[key]) {
-    // 
-      // outputContent += `${padRight(item.umlContent, 60, ' ')} /' ${padRight(item.autoIndex, 13, ' ')}${item.autoType} ${item.filePositionInfo} '/\n`;
-      outputContent += `${padRight(item.umlContent, 100, ' ')} /' ${padRight(item.autoIndex, 6, ' ')} ${item.filePositionInfo} '/\n`;
+    for (const item of agLineMap[key]) {
+      let umlContent = _.trim(item.umlContent);
+      if (_.startsWith(umlContent, ':') && _.endsWith(umlContent, ';')) {
+        umlContent = ':' + item.autoIndex + ' ' + umlContent.substr(1);
+      } else {
+        const umlContents = umlContent.split(' ');
+        if (umlContents[1] === '\-\>' && umlContents[3] === ':') {
+          umlContents[3] = `: ${item.autoIndex}`;
+          umlContent = umlContents.join(' ');
+        }
+      }
+
+      outputContent += `${padRight(umlContent, 100, ' ')} /' ${padRight(item.autoIndex, 6, ' ')} ${item.filePositionInfo} '/\n`;
     }
     // outputContent += 'end\n';
     outputContent += '@enduml\n';
@@ -177,7 +188,14 @@ const outputAgLineMap = (agLineMap) => {
         outputDir = path.normalize(currentWorkingDir + '/' + outputDir);
       }
     }
-    let outputFileName = `${outputDir}/${key}_com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd')}.plantuml`;
+
+    let plantumlFileName = '';
+    if (options.plantumlFileName) {
+      plantumlFileName = options.plantumlFileName;
+    } else {
+      plantumlFileName = `${key}_com_fred_${process.argv[1].split('/').pop().replace('.', '_')}_${dateFormat(Date.now(), 'yyyy_mm_dd')}`;
+    }
+    const outputFileName = `${outputDir}/${plantumlFileName}.plantuml`;
     fs.writeFileSync(outputFileName, outputContent);
     console.log(outputContent);
 
@@ -201,28 +219,28 @@ const fileChangeHandler = (eventName, fileNameChanged) => {
       return fileNameChanged + ':' + agLine;
     });
 
-    for (let agLine of agLines) {
+    for (const agLine of agLines) {
       if (agLine.length === 0) {
         continue;
       }
 
-      let agLineComponets = agLine.split('//').map((item) => {
+      const agLineComponets = agLine.split('//').map((item) => {
         return item.trim();
       });
 
-      let filePositionInfo = agLineComponets[0];
-      let autoInfoAndUmlContent = agLineComponets[1];
-      let contentInfos = autoInfoAndUmlContent.split(' ');
+      const filePositionInfo = agLineComponets[0];
+      const autoInfoAndUmlContent = agLineComponets[1];
+      const contentInfos = autoInfoAndUmlContent.split(' ');
 
-      let autoType = contentInfos[1];
+      const autoType = contentInfos[1];
 
       if (agLineMap[autoType] && agLineMap[autoType].length > 0) {
-        let filePositionInfoItems = filePositionInfo.split(':');
-        let fileName = filePositionInfoItems[0];
+        const filePositionInfoItems = filePositionInfo.split(':');
+        const fileName = filePositionInfoItems[0];
         // let fileLine = filePositionInfoItems[1];
 
         for (let index = agLineMap[autoType].length - 1; index >= 0; index--) {
-          let item = agLineMap[autoType][index];
+          const item = agLineMap[autoType][index];
           // if (fileName === item.fileName && fileLine === item.fileLine) {
           if (fileName === item.fileName) {
             agLineMap[autoType].splice(index, 1);
@@ -238,11 +256,11 @@ const fileChangeHandler = (eventName, fileNameChanged) => {
 
 if (options.monitor) {
   if (options.monitor === 'fileChange') {
-    let foldersWatched = (options.folders ? options.folders : '.').split(/,/);
-    for (let folder of foldersWatched) {
+    const foldersWatched = (options.folders ? options.folders : '.').split(/,/);
+    for (const folder of foldersWatched) {
       ((folder) => {
         watch(folder, {
-          delay     : 5000,
+          delay     : 2000,
           recursive : true,
           filter    : (f) => {
             if (/\.git/.test(f)) { return false; }
@@ -262,9 +280,9 @@ if (options.monitor) {
           //   eventName
           // });
 
-          let fileNameChangedParts =  path.parse(fileNameChanged);
+          const fileNameChangedParts =  path.parse(fileNameChanged);
           if (fileNameChangedParts.ext && fileNameChangedParts.ext.length) {
-            for (let fileType of fileSearchType) {
+            for (const fileType of fileSearchType) {
               if (fileNameChangedParts.ext === '.' + fileType) {
                 try {
                   fileChangeHandler(eventName, fileNameChanged);
@@ -282,8 +300,8 @@ if (options.monitor) {
   }
   if (options.monitor === 'http') {
     http.createServer((req, res) => {
-      let parsedUrl = url.parse(req.url);
-      let parseQuery = querystring.parse(parsedUrl.query);
+      const parsedUrl = url.parse(req.url);
+      const parseQuery = querystring.parse(parsedUrl.query);
       parseQuery.fileNameChanged = parseQuery.fileNameChanged.replace(currentWorkingDir + '/', '');
 
       try {
@@ -291,10 +309,10 @@ if (options.monitor) {
       } catch (error) {
         console.error(error);
       }
-      console.log({parseQuery});
+      console.log({ parseQuery });
 
       res.writeHead(200);
       res.end('{code:0}');
-    }).listen(3000);
+    }).listen(2000);
   }
 }

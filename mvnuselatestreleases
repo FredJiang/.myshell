@@ -1,0 +1,4 @@
+#!/bin/bash
+
+  mvn $@ versions:use-latest-releases
+# mvn -U versions:use-latest-releases

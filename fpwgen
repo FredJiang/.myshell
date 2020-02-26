@@ -1,0 +1,7 @@
+#!/bin/bash
+
+former=$(pwgen    -N 1 -c0 1 | tr [a-z] [A-Z])
+
+latter=$(pwgen -s -N 1 -cn 13)
+
+echo "${former}${latter}"

@@ -9,33 +9,33 @@ const request = require('request');
 const { exec } = require('child_process');
 const os = require('os');
 
-let myRequestPromise = (reqAndRes) => {
+const myRequestPromise = (reqAndRes) => {
   return new Promise((resolve, reject) => {
-    let form = reqAndRes.req;
+    const form = reqAndRes.req;
 
-    let requestOptions = {
-      'rejectUnauthorized' : false,
-      'method'             : reqAndRes.method
+    const requestOptions = {
+      rejectUnauthorized : false,
+      method             : reqAndRes.method
     };
 
     if (_.get(reqAndRes, 'method', '').toLowerCase() === 'GET'.toLowerCase()) {
-      requestOptions['url'] = `${protocolHostPort}${reqAndRes.path}?${querystring.stringify(reqAndRes.req)}`;
+      requestOptions.url = `${protocolHostPort}${reqAndRes.path}?${querystring.stringify(reqAndRes.req)}`;
     }
     if (_.get(reqAndRes, 'method', '').toLowerCase() === 'POST'.toLowerCase()) {
-      requestOptions['url'] = `${protocolHostPort}${reqAndRes.path}`;
+      requestOptions.url = `${protocolHostPort}${reqAndRes.path}`;
 
       if (_.get(reqAndRes, 'headers.content-type', '').indexOf('json') !== -1) {
-        requestOptions['json'] = form;
+        requestOptions.json = form;
       } else {
-        requestOptions['form'] = form;
+        requestOptions.form = form;
       }
     }
 
     if (_.get(reqAndRes, 'headers.accept-encoding', '').indexOf('gzip') !== -1) {
-      requestOptions['gzip'] = true;
+      requestOptions.gzip = true;
     }
 
-    requestOptions['headers'] = reqAndRes['headers'];
+    requestOptions.headers = reqAndRes.headers;
 
     request(requestOptions, (error, response, body) => {
       if (error) {
@@ -55,7 +55,7 @@ let myRequestPromise = (reqAndRes) => {
 const showAlert = (title, notification) => {
   return new Promise((resolve, reject) => {
     console.log(notification);
-    let command = `osascript -e 'display notification "${notification.replace("'", '‘')}" with title "${title.replace("'", '‘')}"'`;
+    const command = `osascript -e 'display notification "${notification.replace("'", '‘')}" with title "${title.replace("'", '‘')}"'`;
     // console.log(command);
     exec(command, (err, stdout, stderr) => {
       // console.log(`err: ${err}`);
@@ -69,14 +69,14 @@ const showAlert = (title, notification) => {
 const funcs = asyncawaitAsync((reqAndResList) => {
   for (let i = 0; i < reqAndResList.length; i++) {
     // console.log('----------------------------------------------------------------');
-    let reqAndRes = reqAndResList[i];
+    const reqAndRes = reqAndResList[i];
 
     if (reqAndRes.beforeCall) {
       asyncawaitAwait(reqAndRes.beforeCall());
     }
 
     let bodyJSON = {};
-    let {
+    const {
       error,
       response,
       requestOptions,
@@ -113,39 +113,39 @@ const funcs = asyncawaitAsync((reqAndResList) => {
 
 const protocolHostPort = 'https://www.shanbay.com';
 
-let cookiesFromCookieInspector = require(os.homedir() + `/Downloads/export.json`);
+const cookiesFromCookieInspector = require(os.homedir() + '/Downloads/export.json');
 
-let cookieItems = [];
+const cookieItems = [];
 
-for (let cookieItem of cookiesFromCookieInspector) {
+for (const cookieItem of cookiesFromCookieInspector) {
   cookieItems.push(`${cookieItem.name}=${cookieItem.value};`);
 }
-let cookieString = cookieItems.join(' ');
+const cookieString = cookieItems.join(' ');
 // console.log('cookieString', cookieString, '\n');
 
 const commonHeader = {
-  'accept'           : 'application/json, text/javascript, */*; q=0.01',
+  accept             : 'application/json, text/javascript, */*; q=0.01',
   'accept-encoding'  : 'gzip, deflate, br',
   'accept-language'  : 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
   'cache-control'    : 'no-cache',
   // 'cookie'           : '_ga=GA1.2.333260953.1540372207; csrftoken=tr9h8aGeHUTCmYJhQaNqxBQ8mrNDHKGQ; userid=39440353; __utmc=183787513; __utmz=183787513.1554288664.50.3.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); language_code=zh-CN; __utma=183787513.333260953.1540372207.1554306976.1554310218.52; __utmt=1; auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjI3MDEzMDEwOCIsImRldmljZSI6MCwiaXNfc3RhZmYiOmZhbHNlLCJpZCI6Mzk0NDAzNTMsImV4cCI6MTU1NTE3NTY4OH0.Y-I6VOK-p7f4ct6aYAAnAt4mo2t2xjbJ-uR2VZTUty0; __utmb=183787513.10.10.1554310218',
-  'cookie'           : cookieString,
-  'pragma'           : 'no-cache',
-  'referer'          : 'https://www.shanbay.com/',
+  cookie             : cookieString,
+  pragma             : 'no-cache',
+  referer            : 'https://www.shanbay.com/',
   'user-agent'       : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
   'x-requested-with' : 'XMLHttpRequest'
 };
 
-let reqAndResList = [
+const reqAndResList = [
   {
-    'path'    : '/api/v1/bdc/search/',
-    'method'  : 'GET',
-    'headers' : _.merge(commonHeader, {
+    path    : '/api/v1/bdc/search/',
+    method  : 'GET',
+    headers : _.merge(commonHeader, {
     }),
-    'req': {
-      'ersion' : '2',
-      'word'   : 'hello',
-      '_'      : Date.now()
+    req: {
+      ersion : '2',
+      word   : 'hello',
+      _      : Date.now()
     },
     afterCall: (body) => {
       return new Promise((resolve, reject) => {
@@ -159,15 +159,15 @@ let reqAndResList = [
     }
   },
   {
-    'path'    : '/api/v1/bdc/learning/',
-    'method'  : 'POST',
-    'headers' : _.merge(commonHeader, {
+    path    : '/api/v1/bdc/learning/',
+    method  : 'POST',
+    headers : _.merge(commonHeader, {
       'content-type' : 'application/json',
-      'origin'       : 'https://www.shanbay.com'
+      origin         : 'https://www.shanbay.com'
     }),
-    'req': {
-      'id'           : 3130,
-      'content_type' : 'vocabulary'
+    req: {
+      id           : 3130,
+      content_type : 'vocabulary'
     }
   }
 ];

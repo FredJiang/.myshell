@@ -1,0 +1,5 @@
+#!/bin/bash
+
+
+
+java -jar /Users/Fred/workspaceJava/tools/sortblogpostbydate/target/sortblogpostbydate-1.0-jar-with-dependencies.jar

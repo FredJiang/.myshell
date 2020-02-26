@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mvn help:effective-pom -Doutput=/tmp/myshell_mvnDependencyLastUpdateDate.xml
+
+java -jar /Users/Fred/workspaceJava/tools/mvnDependencyLastUpdateDate/target/mvnDependencyLastUpdateDate-1.0-jar-with-dependencies.jar

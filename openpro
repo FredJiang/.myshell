@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# help
+# java -jar /opt/javaDecompiler/procyon/procyon-decompiler-0.5.36.jar
+
+java -jar /opt/javaDecompiler/procyon/procyon-decompiler-0.5.36.jar -b "$@"

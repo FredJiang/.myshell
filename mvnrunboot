@@ -4,6 +4,6 @@ set -o xtrace
 
 mvn spring-boot:run
 
-# ./mvnw spring-boot:run
-# ./mvnw package && java -jar target/*.jar
-# ./mvnw package && java -jar target/*.war
+# ./mvnw clean package
+# java -jar target/your.jar
+# java -jar target/your.war
